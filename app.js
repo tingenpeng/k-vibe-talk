@@ -47,25 +47,63 @@ function initPatternSelections() {
 }
 
 // ==================== 韓文語音合成 (TTS) 與麥克風跟讀評分 (STT) ====================
+let activeUtterance = null; // 保留參照避免被垃圾回收
+
 function speakKorean(text, customRate = null) {
   if (!('speechSynthesis' in window)) {
     alert('您的瀏覽器目前不支援語音朗讀功能');
     return;
   }
-  window.speechSynthesis.cancel();
+
+  // 1. 若處於暫停或卡死狀態，先強制 resume 再 cancel
+  try {
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+    window.speechSynthesis.cancel();
+  } catch (e) {
+    console.warn('SpeechSynthesis reset warn', e);
+  }
+
   // 過濾掉括號內的數字提示避免重複念
   const cleanText = text.replace(/\([^)]*\)/g, '').trim();
+  if (!cleanText) return;
+
   const utter = new SpeechSynthesisUtterance(cleanText);
   utter.lang = 'ko-KR';
-  utter.rate = customRate !== null ? customRate : state.speechSpeed;
+  utter.rate = customRate !== null ? customRate : (state.speechSpeed || 1.0);
+  utter.pitch = 1.0;
 
-  // 優先挑選韓國自然女聲 (如 Yuna / Google 한국의)
+  // 尋找韓文發音聲音
   const voices = window.speechSynthesis.getVoices();
-  const krVoice = voices.find(v => v.lang.includes('ko') && (v.name.includes('Yuna') || v.name.includes('Google') || v.name.includes('Siri')))
-               || voices.find(v => v.lang.includes('ko'));
-  if (krVoice) utter.voice = krVoice;
+  const krVoice = voices.find(v => v.lang && (v.lang === 'ko-KR' || v.lang.startsWith('ko')) && (v.name.includes('Yuna') || v.name.includes('Google') || v.name.includes('Siri') || v.name.includes('Korean')))
+               || voices.find(v => v.lang && (v.lang === 'ko-KR' || v.lang.startsWith('ko')));
+  if (krVoice) {
+    utter.voice = krVoice;
+  }
 
-  window.speechSynthesis.speak(utter);
+  utter.onend = () => {
+    activeUtterance = null;
+  };
+
+  utter.onerror = (e) => {
+    console.warn('SpeechSynthesis error:', e);
+    activeUtterance = null;
+  };
+
+  activeUtterance = utter;
+
+  // 避免 Safari / Chrome 背景佇列卡住，延遲 20ms 觸發
+  setTimeout(() => {
+    try {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+      window.speechSynthesis.speak(utter);
+    } catch (err) {
+      console.error('Speech speak failed', err);
+    }
+  }, 20);
 }
 
 // 確保部分瀏覽器非同步載入語音包
