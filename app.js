@@ -4,6 +4,7 @@
 const state = {
   currentTab: 'patterns',       // 'patterns' | 'rapid' | 'rpg' | 'sos'
   currentCategory: 'all',       // 'all' | 'clinic' | 'pharmacy' | 'shopping' | 'dining' | 'daily'
+  sentenceTier: 'lv1',          // 'lv1' (極簡好記 3~4字) | 'lv2' (得體結構 5~7字) | 'lv3' (完整長句)
   practiceMode: 'speaking',     // 'speaking' (開口實戰) | 'commute' (通勤免開口)
   speechSpeed: 1.0,             // 0.85 (慢速清晰) | 1.0 (正常速) | 1.2 (店員快嘴速)
   showLiaison: true,
@@ -16,7 +17,8 @@ const state = {
   aiPersona: 'clinic',
   customSosCards: [],
   drillQuestions: [],
-  drillIndex: 0
+  drillIndex: 0,
+  activePuzzle: null            // 當前進行的結構重組拼圖狀態
 };
 
 // 初始化
@@ -207,6 +209,21 @@ function toggleSpeechSpeed() {
     state.speechSpeed = 1.0;
     document.getElementById('speedToggleLabel').textContent = '正常速 1.0x';
   }
+}
+
+function setSentenceTier(tier) {
+  state.sentenceTier = tier;
+  ['lv1', 'lv2', 'lv3'].forEach(t => {
+    const btn = document.getElementById(`tierBtn-${t}`);
+    if (btn) {
+      if (t === tier) {
+        btn.className = 'px-2.5 py-1 rounded-lg font-bold text-xs bg-rose-500 text-white shadow-sm transition';
+      } else {
+        btn.className = 'px-2.5 py-1 rounded-lg font-medium text-xs text-mocha hover:text-espresso transition';
+      }
+    }
+  });
+  renderAllViews();
 }
 
 function updateDisplayPrefs() {
@@ -949,6 +966,8 @@ function renderSosCards() {
     const matchQuery = !query ||
       card.zhIntent.toLowerCase().includes(query) ||
       card.kr.toLowerCase().includes(query) ||
+      (card.lv1 && card.lv1.kr.toLowerCase().includes(query)) ||
+      (card.lv2 && card.lv2.kr.toLowerCase().includes(query)) ||
       card.tag.toLowerCase().includes(query) ||
       card.nuance.toLowerCase().includes(query);
     return matchCat && matchQuery;
@@ -959,35 +978,78 @@ function renderSosCards() {
     return;
   }
 
-  container.innerHTML = filtered.map(card => `
-    <div class="bg-white rounded-3xl border border-oat p-4 sm:p-5 shadow-sm hover:border-rose-300 transition flex flex-col justify-between space-y-3">
-      <div class="space-y-2">
-        <div class="flex items-center justify-between gap-2">
-          <span class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[11px] font-bold">
-            ${getCategoryName(card.category)}・${card.tag}
-          </span>
-          <button onclick="openBigCard('${escapeQuotes(card.kr)}', '${escapeQuotes(card.liaison)}', '${escapeQuotes(card.zhIntent)}', '${escapeQuotes(card.tag)}')" class="px-2.5 py-1 rounded-xl bg-oat hover:bg-stone-200 text-espresso text-[11px] font-bold transition">
-            🔍 放大出示
-          </button>
+  container.innerHTML = filtered.map(card => {
+    // 依據當前選擇的句子長度等級 (lv1 / lv2 / lv3) 動態取得對應文字
+    let currentKr = card.kr;
+    let currentLiaison = card.liaison;
+    let currentZh = card.zhIntent;
+    let tierBadge = '👑 Lv.3 完整句';
+
+    if (state.sentenceTier === 'lv1' && card.lv1) {
+      currentKr = card.lv1.kr;
+      currentLiaison = card.lv1.liaison;
+      currentZh = card.lv1.zh;
+      tierBadge = '🌱 Lv.1 極簡好記';
+    } else if (state.sentenceTier === 'lv2' && card.lv2) {
+      currentKr = card.lv2.kr;
+      currentLiaison = card.lv2.liaison;
+      currentZh = card.lv2.zh;
+      tierBadge = '✨ Lv.2 自然得體';
+    }
+
+    const hasPuzzle = Boolean(card.chunks && card.chunks.length > 0);
+
+    return `
+      <div class="bg-white rounded-3xl border border-oat p-4 sm:p-5 shadow-sm hover:border-rose-300 transition flex flex-col justify-between space-y-3">
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[11px] font-bold">
+                ${getCategoryName(card.category)}・${card.tag}
+              </span>
+              <span class="px-2 py-0.5 rounded-md bg-stone-100 text-mocha text-[10px] font-semibold">
+                ${tierBadge}
+              </span>
+            </div>
+            <div class="flex items-center gap-1">
+              ${hasPuzzle ? `
+                <button onclick="openChunkPuzzle('${card.id}')" class="px-2.5 py-1 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-[11px] font-bold transition flex items-center gap-1" title="練習句子結構排順序">
+                  <span>🧩</span>
+                  <span>練結構</span>
+                </button>
+              ` : ''}
+              <button onclick="openBigCard('${escapeQuotes(currentKr)}', '${escapeQuotes(currentLiaison)}', '${escapeQuotes(currentZh)}', '${escapeQuotes(card.tag)}')" class="px-2.5 py-1 rounded-xl bg-oat hover:bg-stone-200 text-espresso text-[11px] font-bold transition">
+                🔍 放大
+              </button>
+            </div>
+          </div>
+
+          <!-- 中文需求意圖 -->
+          <p class="font-bold text-sm sm:text-base text-espresso">${currentZh}</p>
+
+          <!-- 韓文大字與連音 -->
+          <div onclick="speakKorean('${escapeQuotes(currentKr)}')" class="cursor-pointer p-3 rounded-2xl bg-cream border border-oat hover:border-rose-300 transition">
+            <p class="font-kr font-extrabold text-base sm:text-lg text-espresso leading-snug">
+              ${currentKr} <span class="text-rose-500 text-sm">🔊</span>
+            </p>
+            ${state.showLiaison ? `<p class="font-kr text-xs text-rose-600 font-semibold mt-1.5">連音：[ ${currentLiaison} ]</p>` : ''}
+          </div>
+
+          <!-- 語序結構透視公式 (Lv.2 與 Lv.3 或展開時顯示) -->
+          ${card.formula ? `
+            <div class="p-2 rounded-xl bg-oat/50 border border-oat text-[11px] text-espresso">
+              <span class="font-bold text-rose-800">📐 語序結構公式：</span>
+              <span class="font-kr font-medium text-mocha">${card.formula}</span>
+            </div>
+          ` : ''}
         </div>
 
-        <!-- 中文需求意圖 -->
-        <p class="font-bold text-sm sm:text-base text-espresso">${card.zhIntent}</p>
-
-        <!-- 韓文大字與連音 -->
-        <div onclick="speakKorean('${escapeQuotes(card.kr)}')" class="cursor-pointer p-3 rounded-2xl bg-cream border border-oat hover:border-rose-300 transition">
-          <p class="font-kr font-extrabold text-lg text-espresso leading-snug">
-            ${card.kr} <span class="text-rose-500 text-sm">🔊</span>
-          </p>
-          ${state.showLiaison ? `<p class="font-kr text-xs text-rose-600 font-semibold mt-1.5">連音照念：[ ${card.liaison} ]</p>` : ''}
+        <div class="pt-1 flex items-center justify-between gap-2 text-[11px] text-mocha border-t border-oat/50">
+          <span>💡 ${card.nuance}</span>
         </div>
       </div>
-
-      <div class="pt-1 flex items-center justify-between gap-2 text-[11px] text-mocha">
-        <span>💡 ${card.nuance}</span>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 function renderDictionary() {
@@ -1020,6 +1082,110 @@ function renderDictionary() {
 }
 
 // ==================== 全螢幕大字出示卡 & 語感潛規則 & 3分鐘閃電刷題 ====================
+// ==================== 語塊結構重組挑戰小遊戲 (Chunk Puzzle) ====================
+function openChunkPuzzle(cardId) {
+  const card = K_VIBE_DATA.sosCards.find(c => c.id === cardId);
+  if (!card || !card.chunks) return;
+
+  const targetZh = card.lv2 ? card.lv2.zh : card.zhIntent;
+  const correctChunks = card.chunks;
+  // 複製並洗牌打亂
+  const shuffled = [...correctChunks].sort(() => Math.random() - 0.5);
+
+  state.activePuzzle = {
+    cardId,
+    correctChunks,
+    selectedChunks: [],
+    availableChunks: shuffled,
+    formula: card.formula || '',
+    correctSentence: correctChunks.join(' ')
+  };
+
+  document.getElementById('puzzleTargetZh').textContent = targetZh;
+  document.getElementById('puzzleSuccessBox').classList.add('hidden');
+  renderPuzzleBoard();
+  document.getElementById('chunkPuzzleModal').classList.remove('hidden');
+}
+
+function renderPuzzleBoard() {
+  const p = state.activePuzzle;
+  if (!p) return;
+
+  const dropZone = document.getElementById('puzzleDropZone');
+  const bankZone = document.getElementById('puzzleBankZone');
+  const placeholder = document.getElementById('puzzlePlaceholder');
+
+  // 渲染玩家已選取排好的語塊 (點擊可移除退回)
+  if (p.selectedChunks.length === 0) {
+    dropZone.innerHTML = '<span class="text-xs text-mocha italic select-none" id="puzzlePlaceholder">請在下方點選積木...</span>';
+  } else {
+    dropZone.innerHTML = p.selectedChunks.map((chunk, idx) => `
+      <button onclick="removePuzzleChunk(${idx})" class="chunk-pill px-3 py-1.5 rounded-xl bg-rose-500 text-white font-kr font-bold text-xs sm:text-sm shadow-sm flex items-center gap-1 group">
+        <span>${chunk}</span>
+        <span class="text-rose-200 group-hover:text-white text-[10px]">✕</span>
+      </button>
+    `).join('');
+  }
+
+  // 渲染候選區
+  bankZone.innerHTML = p.availableChunks.map((chunk, idx) => `
+    <button onclick="pickPuzzleChunk(${idx})" class="chunk-pill px-3 py-1.5 rounded-xl bg-oat hover:bg-stone-200 text-espresso font-kr font-bold text-xs sm:text-sm border border-stone-300 transition">
+      ${chunk}
+    </button>
+  `).join('');
+
+  // 檢查是否已填滿全部語塊
+  if (p.availableChunks.length === 0) {
+    checkPuzzleResult();
+  }
+}
+
+function pickPuzzleChunk(index) {
+  const p = state.activePuzzle;
+  if (!p) return;
+  const item = p.availableChunks.splice(index, 1)[0];
+  p.selectedChunks.push(item);
+  renderPuzzleBoard();
+}
+
+function removePuzzleChunk(index) {
+  const p = state.activePuzzle;
+  if (!p) return;
+  const item = p.selectedChunks.splice(index, 1)[0];
+  p.availableChunks.push(item);
+  renderPuzzleBoard();
+}
+
+function checkPuzzleResult() {
+  const p = state.activePuzzle;
+  if (!p) return;
+
+  const isCorrect = p.selectedChunks.every((val, idx) => val === p.correctChunks[idx]);
+  const successBox = document.getElementById('puzzleSuccessBox');
+
+  if (isCorrect) {
+    successBox.classList.remove('hidden');
+    document.getElementById('puzzleFormulaText').textContent = p.formula;
+    const speakBtn = document.getElementById('puzzleSpeakBtn');
+    speakBtn.onclick = () => speakKorean(p.correctSentence, 0.95);
+    speakKorean(p.correctSentence, 0.95);
+  } else {
+    // 順序錯誤時輕微提示重來
+    setTimeout(() => {
+      alert('順序好像有點反過來囉！注意韓語的動詞與語尾通常放在最後面，再試一次看看！');
+      // 重設候選庫
+      p.availableChunks = [...p.correctChunks].sort(() => Math.random() - 0.5);
+      p.selectedChunks = [];
+      renderPuzzleBoard();
+    }, 150);
+  }
+}
+
+function closeChunkPuzzleModal() {
+  document.getElementById('chunkPuzzleModal').classList.add('hidden');
+  state.activePuzzle = null;
+}
+
 function openBigCard(kr, liaison, zh, tag) {
   document.getElementById('bigCardTag').textContent = tag || '韓國現場溝通卡';
   document.getElementById('bigCardZh').textContent = zh;
