@@ -260,6 +260,7 @@ function renderAllViews() {
   renderRapidFire();
   renderScenarios();
   renderSosCards();
+  renderDictionary();
 }
 
 // ==================== TAB 1: 萬用句型積木 (Pattern Lego) ====================
@@ -575,6 +576,7 @@ function renderScenarios() {
   const stage = document.getElementById('scenarioStage');
   if (!selector || !stage) return;
 
+  selector.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3';
   selector.innerHTML = K_VIBE_DATA.scenarios.map(sc => {
     const active = sc.id === state.activeScenarioId;
     return `
@@ -983,6 +985,35 @@ function renderSosCards() {
 
       <div class="pt-1 flex items-center justify-between gap-2 text-[11px] text-mocha">
         <span>💡 ${card.nuance}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderDictionary() {
+  const container = document.getElementById('dictionaryContainer');
+  if (!container || !K_VIBE_DATA.dictionary) return;
+
+  const list = K_VIBE_DATA.dictionary.filter(
+    d => state.currentCategory === 'all' || d.cat === state.currentCategory
+  );
+
+  container.innerHTML = list.map(group => `
+    <div class="bg-white rounded-3xl border border-oat p-4 sm:p-5 shadow-sm space-y-3">
+      <h4 class="font-bold text-sm sm:text-base text-espresso border-b border-oat pb-2">${group.title}</h4>
+      <div class="space-y-2">
+        ${group.items.map(item => `
+          <div onclick="speakKorean('${escapeQuotes(item.kr.split('/')[0])}')" class="cursor-pointer p-2.5 rounded-xl bg-cream/70 hover:bg-rose-50 border border-oat hover:border-rose-200 transition flex items-start justify-between gap-2">
+            <div>
+              <div class="font-kr font-bold text-sm text-espresso">${item.kr} <span class="text-rose-500 text-xs">🔊</span></div>
+              ${state.showLiaison ? `<div class="font-kr text-[11px] text-rose-600 font-medium">[ ${item.liaison} ]</div>` : ''}
+              <div class="text-xs text-mocha mt-0.5">${item.zh}</div>
+            </div>
+            <button onclick="event.stopPropagation(); openBigCard('${escapeQuotes(item.kr)}', '${escapeQuotes(item.liaison)}', '${escapeQuotes(item.zh)}', '${escapeQuotes(group.title)}')" class="shrink-0 px-2 py-1 rounded-lg bg-white border border-stone-200 text-[11px] text-espresso hover:bg-oat">
+              放大
+            </button>
+          </div>
+        `).join('')}
       </div>
     </div>
   `).join('');
