@@ -1,0 +1,10 @@
+{
+  "name": "K-Vibe Talk 首爾大人系實戰韓語系統",
+  "short_name": "K-Vibe 韓語",
+  "description": "專為醫美、藥局、漢南洞逛街、韓國餐廳打造的不卑不亢實戰韓語隨身系統",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FAF7F2",
+  "theme_color": "#FAF7F2",
+  "orientation": "portrait-primary"
+}
