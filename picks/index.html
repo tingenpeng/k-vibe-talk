@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>王小姐的日常自留清單｜Life捧烹</title>
+  <meta name="description" content="王小姐的日常療癒所實際使用與無限回購清單。每一樣都是親自用過、吃過才推薦，並幫大家比對過目前最優惠的賣場價格。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600&family=Noto+Serif+TC:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAF8F5;
+      --card-bg: #FFFFFF;
+      --text-main: #2C2825;
+      --text-sub: #6E675F;
+      --text-muted: #9C948B;
+      --accent: #8C6D53;
+      --accent-soft: #F2ECE4;
+      --price-color: #B85D43;
+      --border: #EAE4DC;
+      --shadow: 0 4px 20px rgba(44, 40, 37, 0.04);
+      --shadow-hover: 0 8px 28px rgba(44, 40, 37, 0.09);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.65;
+      padding-bottom: 64px;
+    }
+    .container {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    /* Header / Profile */
+    header {
+      padding: 36px 0 22px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .avatar-wrap {
+      width: 84px;
+      height: 84px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid #E5DDD3;
+      background: #EFECE6;
+    }
+    .avatar-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    h1 {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1.45rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+    .bio {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      max-width: 520px;
+      margin: 0 auto 18px;
+      font-weight: 400;
+    }
+    /* Channel Links (Linktree Replacement) */
+    .channel-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .channel-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      color: var(--text-main);
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .channel-link:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+    /* Sticky Filter Bar */
+    .sticky-nav {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(250, 248, 245, 0.95);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 14px 0 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .search-row {
+      margin-bottom: 10px;
+    }
+    .search-input {
+      width: 100%;
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #FFFFFF;
+      color: var(--text-main);
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .search-input:focus {
+      border-color: var(--accent);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding-bottom: 2px;
+    }
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+    .tab-btn {
+      flex-shrink: 0;
+      padding: 7px 15px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #FFFFFF;
+      color: var(--text-sub);
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.18s ease;
+    }
+    .tab-btn.active {
+      background: var(--text-main);
+      color: #FFFFFF;
+      border-color: var(--text-main);
+    }
+    /* App Notice Banner */
+    .notice-bar {
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      background: var(--accent-soft);
+      padding: 8px 14px;
+      border-radius: 8px;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+    /* Product Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+    @media (min-width: 680px) {
+      .grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      }
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+    .card-img-link {
+      display: block;
+      position: relative;
+      width: 100%;
+      padding-top: 100%;
+      background: #F4F1EC;
+      overflow: hidden;
+      text-decoration: none;
+    }
+    .card-img-link img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s ease;
+    }
+    .card:hover .card-img-link img {
+      transform: scale(1.03);
+    }
+    .badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(44, 40, 37, 0.82);
+      color: #FFFFFF;
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 6px;
+      backdrop-filter: blur(4px);
+    }
+    .card-body {
+      padding: 12px 13px 14px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .cat-tag {
+      font-size: 0.7rem;
+      color: var(--accent);
+      margin-bottom: 3px;
+      font-weight: 500;
+    }
+    .card-title {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 0.93rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.42;
+      margin-bottom: 7px;
+      text-decoration: none;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-note {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      line-height: 1.55; text-wrap: pretty;
+      margin-bottom: 12px;
+      flex: 1;
+    }
+    .card-footer {
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px solid #F2EFE9;
+    }
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 9px;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .price {
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: var(--price-color);
+    }
+    .price-note {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+    .btn-row {
+      display: flex;
+      gap: 6px;
+    }
+    .buy-btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 10px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #FFFFFF;
+      background: var(--text-main);
+      border-radius: 7px;
+      text-decoration: none;
+      transition: background 0.2s;
+      text-align: center;
+    }
+    .buy-btn:hover {
+      background: var(--accent);
+    }
+    .article-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 9px;
+      font-size: 0.76rem;
+      color: var(--text-sub);
+      background: var(--accent-soft);
+      border-radius: 7px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .article-btn:hover {
+      color: var(--text-main);
+    }
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    footer {
+      margin-top: 48px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="avatar-wrap">
+        <img src="https://down-tw.img.susercontent.com/file/tw-11134294-820lg-mu916w3ysd8lff" alt="王小姐">
+      </div>
+      <h1>王小姐的日常自留清單</h1>
+      <p class="bio">每一樣都是我實際用過、吃過、一買再買的生活紀錄。<br>連結皆已幫大家比對過官方直營或目前單價最優惠的賣場。</p>
+      <nav class="channel-bar">
+        <a class="channel-link" href="https://www.lifeponpon.com" target="_blank" rel="noopener">日常療癒所網站</a>
+        <a class="channel-link" href="https://vocus.cc/user/@ty2317" target="_blank" rel="noopener">方格子專欄</a>
+        <a class="channel-link" href="https://www.facebook.com/ty2317" target="_blank" rel="noopener">Facebook</a>
+        <a class="channel-link" href="https://www.instagram.com/feiwulife.chu/" target="_blank" rel="noopener">Instagram</a>
+        <a class="channel-link" href="https://www.youtube.com/@lifeponpon" target="_blank" rel="noopener">YouTube</a>
+      </nav>
+    </header>
+
+    <div class="sticky-nav">
+      <div class="search-row">
+        <input type="search" id="searchInput" class="search-input" placeholder="搜尋好物名稱或關鍵字（例如：咖啡、滴雞精、洗碗、童書）...">
+      </div>
+      <div class="tabs" id="categoryTabs">
+        <button class="tab-btn active" data-cat="all">全部選物（33）</button>
+        <button class="tab-btn" data-cat="kitchen">廚房與家電</button>
+        <button class="tab-btn" data-cat="food">飲食常備回購</button>
+        <button class="tab-btn" data-cat="books">國小童書書單</button>
+        <button class="tab-btn" data-cat="daily">香氛與日用耗材</button>
+        <button class="tab-btn" data-cat="fashion">私服穿搭</button>
+      </div>
+    </div>
+
+    <div class="notice-bar">
+      點擊商品卡片將直接喚醒手機內的「蝦皮App」開啟商品頁，無須於網頁重新登入。
+    </div>
+
+    <main class="grid" id="productGrid"></main>
+
+    <footer>
+      <p>Life捧烹｜王小姐的日常療癒所</p>
+    </footer>
+  </div>
+
+  <script>
+    const PRODUCTS = [{"category": "kitchen", "categoryLabel": "廚房與家電", "badge": "官方旗艦店｜7.3折", "name": "雀巢Nespresso Essenza Mini膠囊咖啡機（贈咖啡組）", "note": "每天早上的第一杯咖啡都靠它，最喜歡沖濃縮加冰牛奶。機身寬度只有8.4公分完全不佔空間，唯一缺點是沖5次就要清膠囊盒。", "price": 3300, "priceNote": "五色任選／含贈品組", "link": "https://s.shopee.tw/6fi0txYAs7", "articleLink": "https://www.lifeponpon.com/post/kitchen-appliances-review", "platform": "蝦皮官方旗艦", "image": "https://down-tw.img.susercontent.com/file/tw-11134207-820lf-mqbidfv210qpe7"}, {"category": "kitchen", "categoryLabel": "廚房與家電", "badge": "比價最優｜省一半", "name": "星巴克Nespresso專用咖啡膠囊（10顆／盒）", "note": "幫大家比過價了，定價一盒240元，這家高銷量賣場一盒只要109元（平均一顆不到11元），適用於Nespresso膠囊機。", "price": 109, "priceNote": "平均1顆10.9元", "link": "https://s.shopee.tw/1BNOWocUhC", "articleLink": "https://www.lifeponpon.com/post/kitchen-appliances-review", "platform": "蝦皮優選賣場", "image": "https://down-tw.img.susercontent.com/file/tw-11134207-820l4-mu69047e3gg38b"}, {"category": "kitchen", "categoryLabel": "廚房與家電", "badge": "一機三用｜蒸烤氣炸", "name": "arlink雅聯全能料理小當家SB10（蒸烤氣炸一體機）", "note": "把氣炸鍋、烤箱和蒸鍋合而為一，不鏽鋼內膽加上蒸氣清潔比傳統蚊香頭好擦很多，份量適合一般小家庭。", "price": 4280, "priceNote": "官網專屬頁面", "link": "https://s.arlink.com.tw/9fwk7n", "articleLink": "https://vocus.cc/article/6aa782d8fd897800014ba508", "platform": "arlink官網", "image": "https://static.wixstatic.com/media/566ce8_5ff8b6f7908b44ec8d72e00ab56f05ca~mv2.jpg"}, {"category": "kitchen", "categoryLabel": "廚房與家電", "badge": "療癒收納", "name": "復古美式Nespresso膠囊咖啡扭蛋機", "note": "不用投幣，轉一下就掉一顆咖啡膠囊出來，放在咖啡機旁邊每天早上轉一顆很有樂趣。", "price": 1600, "priceNote": "7.1折優惠", "link": "https://s.shopee.tw/7ptyI6TjVM", "articleLink": "", "platform": "蝦皮賣場", "image": "https://down-tw.img.susercontent.com/file/tw-11134207-7ra0m-mb7xd0bz58jaf3"}, {"category": "food", "categoryLabel": "飲食常備回購", "badge": "全家喝掉數百包", "name": "享溫馨原味常溫滴雞精（100包散裝組）", "note": "我們家每次都是一百包一百包在買。完全沒有腥味，常溫保存丟進熱水溫一下就能喝，早上趕時間或送長輩都很實用。", "price": 6000, "priceNote": "官方直營／平均1包60元", "link": "https://s.shopee.tw/70KrIZWuC9", "articleLink": "", "platform": "蝦皮官方直營", "image": "https://down-tw.img.susercontent.com/file/tw-11134207-81ztd-metqf0grpcsj5b"}, {"category": "food", "categoryLabel": "飲食常備回購", "badge": "持續回購｜6.4折", "name": "韓國Foodology石榴美容切割果凍（12包／盒）", "note": "我腸胃常常不太順，吃益生菌沒什麼感覺，這款果凍是朋友推薦後一路回購到現在的常備品，酸甜石榴味很好入口。", "price": 256, "priceNote": "12包盒裝優惠價", "link": "https://s.shopee.tw/30ojGwU1fq", "articleLink": "", "platform": "蝦皮賣場", "image": "https://down-tw.img.susercontent.com/file/sg-11134207-82622-mjy3cehsdipuca"}, {"category": "food", "categoryLabel": "飲食常備回購", "badge": "回購超過2年", "name": "《假文青．真肥宅》無添加手作蒜油／蒜蓉醬", "note": "至少跟他們買了2年。成分單純無添加，抹吐司烤過超香，平常燙青菜或拌麵挖一匙就搞定。", "price": 180, "priceNote": "手作無添加", "link": "https://s.shopee.tw/3qNqGTQqyx", "articleLink": "", "platform": "蝦皮手作名店", "image": "https://down-tw.img.susercontent.com/file/769a3c7b718863f847b911d6d67466b6"}, {"category": "food", "categoryLabel": "飲食常備回購", "badge": "回購超過2年", "name": "《假文青．真肥宅》減糖手工草莓果醬", "note": "吃得到滿滿真實草莓果肉，減糖配方不會死甜，小孩早餐抹吐司或配優格一下就吃光一罐。", "price": 180, "priceNote": "減糖手作果醬", "link": "https://s.shopee.tw/3VkzrrS7er", "articleLink": "", "platform": "蝦皮手作名店", "image": "https://down-tw.img.susercontent.com/file/52c0bb07863c017d79c9d167acb78237"}, {"category": "food", "categoryLabel": "飲食常備回購", "badge": "嗜辣必備", "name": "《假文青．真肥宅》手工蒜蓉辣椒醬（大辣）", "note": "同一個賣家的隱藏王牌，蒜香濃、辣度夠勁，沾水餃或拌乾麵非常過癮。", "price": 160, "priceNote": "手作大辣賣場", "link": "https://s.shopee.tw/3g4Q4ARUJu", "articleLink": "", "platform": "蝦皮手作名店", "image": "https://down-tw.img.susercontent.com/file/49c87e4f5661e0375586184fb2206de0"}, {"category": "food", "categoryLabel": "飲食常備回購", "badge": "日本露營神粉", "name": "日本堀西萬能調味粉（原味／金標白松露）", "note": "氣炸牛排、烤雞腿或煎蛋灑一點就很有層次，不用瓶瓶罐罐調半天。", "price": 99, "priceNote": "多口味任選", "link": "https://s.shopee.tw/1gJLgUZ6NS", "articleLink": "", "platform": "蝦皮賣場", "image": "https://down-tw.img.susercontent.com/file/tw-11134207-820le-mmgcq1m6yk1wcc"}, {"category": "food", "categoryLabel": "飲食常備回購", "badge": "日本餐桌常備", "name": "日本桃屋蒜頭辣油（含炸蒜片）／海苔醬", "note": "裡面滿滿的酥脆炸蒜片，完全不會太辣，直接配白飯或拌青菜都很香。", "price": 119, "priceNote": "日本原裝", "link": "https://s.shopee.tw/1VzvUBZjiP", "articleLink": "", "platform": "蝦皮賣場", "image": "https://down-tw.img.susercontent.com/file/tw-11134207-7ras8-m3zzoehtgwvb13"}, {"category": "food", "categoryLabel": "飲食常備回購", "badge": "懶人晚餐救星｜7.2折", "name": "MOS摩斯漢堡日式咖哩調理包（18入免運組）", "note": "常溫保存不佔冰箱，大人小孩下課肚子餓，隔水加熱淋在飯上5分鐘就能開飯。", "price": 1099, "priceNote": "18入組／平均1包61元", "link": "https://s.shopee.tw/2Vi7Au7QG0", "articleLink": "", "platform": "蝦皮商城", "image": "https://cf.shopee.sg/file/tw-11134207-7r98s-lteqoyd30xjm70"}, {"category": "food", "categoryLabel": "飲食常備回購", "badge": "追劇零嘴", "name": "韓國東遠海苔脆片／脆餅（原味／蒜香／鮮蝦）", "note": "兩片海苔中間夾著脆米餅，口感很酥脆，家裡常備的看電視零嘴。", "price": 85, "priceNote": "多口味可選", "link": "https://s.shopee.tw/2VsSg1VvgZ", "articleLink": "", "platform": "蝦皮賣場", "image": "https://down-tw.img.susercontent.com/file/tw-11134207-7rasf-m6a1wde59yfq30"}, {"category": "food", "categoryLabel": "飲食常備回購", "badge": "飽滿香脆", "name": "臻御行特大腰果（四種口味任選）", "note": "顆粒很大很飽滿，低溫烘焙不會燥熱，買給長輩或自己當下午茶都很適合。", "price": 330, "priceNote": "特大顆粒裝", "link": "https://s.shopee.tw/5fpRaJCiS8", "articleLink": "", "platform": "蝦皮商城", "image": "https://down-tw.img.susercontent.com/file/tw-11134207-7r98x-lv1axiby0agoa0"}, {"category": "food", "categoryLabel": "飲食常備回購", "badge": "純手工｜5.2折", "name": "八味養生鋪黛妃純手工沙琪瑪（20條／盒）", "note": "酥軟不黏牙，甜度剛好，單顆獨立包裝放在家裡隨時墊肚子很方便。", "price": 399, "priceNote": "20條盒裝", "link": "https://s.shopee.tw/3LRZfYSkzo", "articleLink": "", "platform": "蝦皮商城", "image": "https://down-tw.img.susercontent.com/file/tw-11134207-7qul4-lgoujmmflkq406"}, {"category": "books", "categoryLabel": "國小童書書單", "badge": "誠品蝦皮｜校園幽默", "name": "《紅豆綠豆碰》套書（小學生最愛校園漫畫橋樑書）", "note": "貼近台灣小學生的日常笑點，字量適中，能讓孩子不知不覺自己讀完整套。", "price": 990, "priceNote": "誠品書店官方賣場", "link": "https://s.shopee.tw/7puDA5Xgo4", "articleLink": "", "platform": "誠品蝦皮商城", "image": "https://down-tw.img.susercontent.com/file/sg-11134201-824j7-me3s7u4qu6tg15"}, {"category": "books", "categoryLabel": "國小童書書單", "badge": "誠品6.6折｜高情商必讀", "name": "《安心國小1-10套書》小學生人際關係與情緒學習故事集", "note": "岑澎維老師作品，用校園故事帶出交友與情緒處理，我們家小孩反覆翻了好幾次。", "price": 2230, "priceNote": "10冊合售／6.6折", "link": "https://s.shopee.tw/AKbK0SrGwb", "articleLink": "", "platform": "誠品蝦皮商城", "image": "https://down-tw.img.susercontent.com/file/sg-11134201-824j7-me3s7u4qu6tg15"}, {"category": "books", "categoryLabel": "國小童書書單", "badge": "自然科普首選", "name": "《科學實驗王》知識漫畫系列（誠品書店）", "note": "雖然沒有注音，但劇情太吸引人，小孩為了看懂故事會主動來問國字，不知不覺吸收很多自然科知識。", "price": 280, "priceNote": "誠品書店官方賣場", "link": "https://s.shopee.tw/3g4arTDVNh", "articleLink": "", "platform": "誠品蝦皮商城", "image": "https://down-aka-tw.img.susercontent.com/sg-11134201-7rbm1-lpfl56cgrkg6bb.avif"}, {"category": "books", "categoryLabel": "國小童書書單", "badge": "低中年級橋樑書", "name": "《屁屁偵探》讀本與繪本系列（誠品書店）", "note": "結合觀察解謎與故事閱讀，剛從繪本過渡到文字橋樑書的小朋友幾乎沒有人不愛。", "price": 250, "priceNote": "誠品書店官方賣場", "link": "https://s.shopee.tw/1BNFsA5wTW", "articleLink": "", "platform": "誠品蝦皮商城", "image": "https://down-tw.img.susercontent.com/file/sg-11134201-7rbl9-lpfl55bu961p38"}, {"category": "books", "categoryLabel": "國小童書書單", "badge": "高CP值二手英文書", "name": "書酷二手書《Arthur亞瑟小子冒險系列》英文讀本組", "note": "進口英文書原價很貴，書酷的二手書書況挑得很乾淨，買來給小孩練英文閱讀非常划算。", "price": 350, "priceNote": "5冊組合價", "link": "https://s.shopee.tw/AAHto9ruHa", "articleLink": "", "platform": "書酷二手書店", "image": "https://down-tw.img.susercontent.com/file/tw-11134207-7r991-lo22ur2kmf5l13"}, {"category": "books", "categoryLabel": "國小童書書單", "badge": "讀冊75折｜專注力遊戲", "name": "《益智尋寶圖：科學好好玩／悠遊海底》", "note": "出門搭車或等餐時給小孩找一找，可以安靜專注很久的觀察力遊戲書。", "price": 146, "priceNote": "讀冊生活75折", "link": "https://s.shopee.tw/6ptbWYhgSE", "articleLink": "", "platform": "TAAZE讀冊商城", "image": "https://down-aka-tw.img.susercontent.com/sg-11134201-7rbm1-lpfl56cgrkg6bb.avif"}, {"category": "daily", "categoryLabel": "香氛與日用耗材", "badge": "蝦皮直營｜4.5折最優", "name": "【蝦皮直營】茶樹莊園雙效蔬果洗碗精補充包700g", "note": "幫大家比好價了，蝦皮直營超市一包只要109元（最快當日到）。好沖洗不咬手，氣味也很清爽。", "price": 109, "priceNote": "蝦皮直營4.5折", "link": "https://s.shopee.tw/9V2WS86lmq", "articleLink": "", "platform": "蝦皮直營超市", "image": "https://down-tw.img.susercontent.com/file/tw-11134207-7r990-lryt3n4hq32gc4"}, {"category": "daily", "categoryLabel": "香氛與日用耗材", "badge": "官方旗艦店直營", "name": "【finish亮碟】全效合一洗碗機專用洗碗錠（100顆）", "note": "洗碗機常備耗材，官方旗艦店100顆裝平均一顆不到8元，丟一顆油垢茶漬都洗得很乾淨。", "price": 799, "priceNote": "平均1顆7.9元", "link": "https://s.shopee.tw/113yKVd82B", "articleLink": "", "platform": "finish官方旗艦", "image": "https://down-tw.img.susercontent.com/file/tw-11134207-7qul9-lfh29hzmohe5e7"}, {"category": "daily", "categoryLabel": "香氛與日用耗材", "badge": "從2歲買到8歲｜4.7折", "name": "【蝦皮直營】康菲兒童立體醫療口罩（30入／盒）", "note": "從小孩2歲一路買到現在8歲多，尺寸分得很細（嬰幼／幼幼／小童／大童），立體剪裁貼合臉型又透氣。", "price": 132, "priceNote": "蝦皮直營4.7折", "link": "https://s.shopee.tw/2B6iweTA6C", "articleLink": "", "platform": "蝦皮直營超市", "image": "https://down-aka-tw.img.susercontent.com/sg-11134201-821f2-mggitp6bah3e93.avif"}, {"category": "daily", "categoryLabel": "香氛與日用耗材", "badge": "大童尺寸齊全｜5折", "name": "【康菲官方直營】兒童3D立體醫療口罩（0-12歲全尺寸）", "note": "如果需要國小中高年級的大童尺寸或是挑選更多花色，官方直營店尺碼最齊全。", "price": 139, "priceNote": "官方直營5折", "link": "https://s.shopee.tw/40YN84PVYK", "articleLink": "", "platform": "康菲官方旗艦", "image": "https://down-aka-tw.img.susercontent.com/tw-11134207-7rbk1-m970cfrka3k511.avif"}, {"category": "daily", "categoryLabel": "香氛與日用耗材", "badge": "敏感肌適用｜木質調", "name": "嵐LEN天然精油體香膏（IFRA認證香精精油）", "note": "質地乾爽不黏膩，採用IFRA認證精油，流汗時是淡淡沉穩的自然香氣，不會有化學止汗劑的味道。", "price": 899, "priceNote": "敏感肌友善", "link": "https://s.shopee.tw/6q1R6GXXX8", "articleLink": "", "platform": "蝦皮賣場", "image": "https://down-tw.img.susercontent.com/file/tw-11134207-81ztq-merkj3x9mubpcb"}, {"category": "daily", "categoryLabel": "香氛與日用耗材", "badge": "韓國江南代表香氣", "name": "韓國秀香Soohyang室內擴香瓶300ml（江南8）", "note": "放在家裡玄關或客廳非常耐聞的香氣，300ml大容量可以用很久，回家聞到心情就會放鬆下來。", "price": 1511, "priceNote": "8.8折優惠", "link": "https://s.shopee.tw/8pmWDsNoHN", "articleLink": "", "platform": "蝦皮韓國代購", "image": "https://down-tw.img.susercontent.com/file/tw-11134207-7r990-lryt3n4hq32gc4"}, {"category": "daily", "categoryLabel": "香氛與日用耗材", "badge": "蝦皮直營｜6.8折", "name": "ALLIE持采濾鏡調色UV防曬乳（官方直營）", "note": "平常出門不想上厚重粉底時，單擦這條就有自然潤色跟高防曬係數，清爽不悶痘。", "price": 499, "priceNote": "蝦皮直營6.8折", "link": "https://s.shopee.tw/7AeHUsWGrA", "articleLink": "", "platform": "蝦皮直營超市", "image": "https://down-tw.img.susercontent.com/file/sg-11134301-823p3-moxqqemv72m899"}, {"category": "fashion", "categoryLabel": "私服穿搭", "badge": "泰國設計師品牌", "name": "Pavi studio時尚W純色摺疊肩背包（真皮背帶）", "note": "容量很大又輕巧，可以隨意摺疊收納，平常背出門或帶出國旅行都很百搭。", "price": 2100, "priceNote": "總代理正品", "link": "https://s.shopee.tw/Ldcdj1Y6e", "articleLink": "", "platform": "蝦皮商城", "image": "https://down-aka-tw.img.susercontent.com/tw-11134207-7qul1-ljff93tuwh8i5a.avif"}, {"category": "fashion", "categoryLabel": "私服穿搭", "badge": "修飾腿型首選", "name": "完美刷色微繭型寬褲（3色可選）", "note": "版型很挺、非常修飾臀腿線條，穿起來舒服不緊繃的日常神褲。", "price": 635, "priceNote": "3色任選", "link": "https://s.shopee.tw/9zyTYW5Q3K", "articleLink": "", "platform": "蝦皮賣場", "image": "https://down-tw.img.susercontent.com/file/tw-11134207-820lc-mlxly7w4pclfc8"}, {"category": "fashion", "categoryLabel": "私服穿搭", "badge": "後鬆緊舒適版型", "name": "missweet微彎刀西裝長褲（後鬆緊／2色）", "note": "帶有一點弧度的彎刀剪裁加上後鬆緊設計，搭毛衣或襯衫都很有精神。", "price": 660, "priceNote": "闆娘實拍", "link": "https://s.shopee.tw/1LgVEOu2xc", "articleLink": "", "platform": "missweet", "image": "https://down-tw.img.susercontent.com/file/sg-11134201-82583-msxiqp0j2u4i86"}, {"category": "fashion", "categoryLabel": "私服穿搭", "badge": "秋冬顯瘦", "name": "missweet短版收腰針織外套（8色）", "note": "自然收腰剪裁不顯臃腫，秋冬配高腰寬褲或長裙比例很好。", "price": 599, "priceNote": "8色可選", "link": "https://s.shopee.tw/113epmvJdW", "articleLink": "", "platform": "missweet", "image": "https://down-tw.img.susercontent.com/file/tw-11134207-820l7-mt659pnc1beod9"}, {"category": "fashion", "categoryLabel": "私服穿搭", "badge": "兩側有口袋", "name": "missweet鏤空雕花棉質長洋裝", "note": "細節很有質感的白色雕花長洋裝，兩側有實用口袋，度假或日常穿都很舒服。", "price": 1180, "priceNote": "現貨供應", "link": "https://s.shopee.tw/qkEdTvwyT", "articleLink": "", "platform": "missweet", "image": "https://down-tw.img.susercontent.com/file/sg-11134201-8258c-mr1beylqn9xg57"}];
+    let currentCat = 'all';
+    let currentQuery = '';
+
+    const grid = document.getElementById('productGrid');
+    const searchInput = document.getElementById('searchInput');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+
+    function render() {
+      const q = currentQuery.trim().toLowerCase();
+      const filtered = PRODUCTS.filter(p => {
+        const matchCat = currentCat === 'all' || p.category === currentCat;
+        const matchQ = !q || p.name.toLowerCase().includes(q) || p.note.toLowerCase().includes(q) || p.categoryLabel.toLowerCase().includes(q);
+        return matchCat && matchQ;
+      });
+
+      if (!filtered.length) {
+        grid.innerHTML = '<div class="empty-state">找不到符合的選物，試試看其他關鍵字或切換分類。</div>';
+        return;
+      }
+
+      grid.innerHTML = filtered.map(p => {
+        const btnLabel = p.link.includes('arlink') ? '前往官網' : '前往蝦皮App';
+        const articleHtml = p.articleLink
+          ? `<a class="article-btn" href="${p.articleLink}" target="_blank" rel="noopener">看實測文</a>`
+          : '';
+        return `
+          <article class="card">
+            <a class="card-img-link" href="${p.link}" target="_blank" rel="noopener">
+              <img src="${p.image}" alt="${p.name}" loading="lazy">
+              ${p.badge ? `<span class="badge">${p.badge}</span>` : ''}
+            </a>
+            <div class="card-body">
+              <div class="cat-tag">${p.categoryLabel}｜${p.platform}</div>
+              <a class="card-title" href="${p.link}" target="_blank" rel="noopener">${p.name}</a>
+              <p class="card-note">${p.note}</p>
+              <div class="card-footer">
+                <div class="price-row">
+                  <span class="price">$${p.price.toLocaleString()}</span>
+                  <span class="price-note">${p.priceNote}</span>
+                </div>
+                <div class="btn-row">
+                  ${articleHtml}
+                  <a class="buy-btn" href="${p.link}" target="_blank" rel="noopener">${btnLabel}</a>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCat = btn.getAttribute('data-cat');
+        render();
+      });
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      currentQuery = e.target.value;
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
