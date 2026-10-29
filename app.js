@@ -4,6 +4,7 @@
 const state = {
   currentTab: 'patterns',       // 'patterns' | 'rapid' | 'rpg' | 'sos'
   currentCategory: 'all',       // 'all' | 'clinic' | 'pharmacy' | 'shopping' | 'dining' | 'daily'
+  currentSubCategory: 'all',    // 子分類過濾器
   sentenceTier: 'lv1',          // 'lv1' (極簡好記 3~4字) | 'lv2' (得體結構 5~7字) | 'lv3' (完整長句)
   practiceMode: 'speaking',     // 'speaking' (開口實戰) | 'commute' (通勤免開口)
   speechSpeed: 1.0,             // 0.85 (慢速清晰) | 1.0 (正常速) | 1.2 (店員快嘴速)
@@ -264,11 +265,58 @@ function renderCategoryFilter() {
       </button>
     `;
   }).join('');
+
+  renderSubCategoryFilter();
+}
+
+function renderSubCategoryFilter() {
+  const subBar = document.getElementById('subCategoryFilterBar');
+  if (!subBar) return;
+
+  const currentCat = state.currentCategory;
+  const subs = K_VIBE_DATA.subcategories && K_VIBE_DATA.subcategories[currentCat];
+
+  if (!subs || subs.length === 0) {
+    subBar.innerHTML = '';
+    subBar.classList.add('hidden');
+    return;
+  }
+
+  subBar.classList.remove('hidden');
+  const allActive = state.currentSubCategory === 'all';
+  let html = `
+    <button onclick="selectSubCategory('all')" class="shrink-0 px-2.5 py-1 rounded-xl text-[11px] font-bold transition ${
+      allActive ? 'bg-rose-500 text-white shadow-sm' : 'bg-white text-mocha hover:text-espresso border border-stone-200'
+    }">
+      ✨ 全部子場景
+    </button>
+  `;
+
+  html += subs.map(sub => {
+    const active = state.currentSubCategory === sub.id;
+    return `
+      <button onclick="selectSubCategory('${sub.id}')" class="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold transition ${
+        active ? 'bg-rose-500 text-white shadow-sm' : 'bg-white text-mocha hover:text-espresso border border-stone-200'
+      }">
+        <span>${sub.icon}</span>
+        <span>${sub.name}</span>
+      </button>
+    `;
+  }).join('');
+
+  subBar.innerHTML = html;
 }
 
 function selectCategory(catId) {
   state.currentCategory = catId;
+  state.currentSubCategory = 'all';
   renderCategoryFilter();
+  renderAllViews();
+}
+
+function selectSubCategory(subId) {
+  state.currentSubCategory = subId;
+  renderSubCategoryFilter();
   renderAllViews();
 }
 
@@ -283,12 +331,14 @@ function renderAllViews() {
 // ==================== TAB 1: 萬用句型積木 (Pattern Lego) ====================
 function renderPatterns() {
   const container = document.getElementById('patternsContainer');
-  const list = K_VIBE_DATA.patterns.filter(
-    p => state.currentCategory === 'all' || p.category === state.currentCategory
-  );
+  const list = K_VIBE_DATA.patterns.filter(p => {
+    const matchCat = state.currentCategory === 'all' || p.category === state.currentCategory;
+    const matchSub = state.currentSubCategory === 'all' || p.subcat === state.currentSubCategory;
+    return matchCat && matchSub;
+  });
 
   if (list.length === 0) {
-    container.innerHTML = `<div class="bg-white rounded-3xl p-8 text-center text-mocha text-sm border border-oat">此分類的句型積木即將擴充，請先切換至「全部情境」或查看「韓國現場救急面板」喔！</div>`;
+    container.innerHTML = `<div class="bg-white rounded-3xl p-8 text-center text-mocha text-sm border border-oat">此分類目前無對應積木，請點選上方「✨ 全部子場景」切換喔！</div>`;
     return;
   }
 
@@ -963,6 +1013,7 @@ function renderSosCards() {
 
   const filtered = allCards.filter(card => {
     const matchCat = state.currentCategory === 'all' || card.category === state.currentCategory;
+    const matchSub = state.currentSubCategory === 'all' || !card.subcat || card.subcat === state.currentSubCategory;
     const matchQuery = !query ||
       card.zhIntent.toLowerCase().includes(query) ||
       card.kr.toLowerCase().includes(query) ||
@@ -970,7 +1021,7 @@ function renderSosCards() {
       (card.lv2 && card.lv2.kr.toLowerCase().includes(query)) ||
       card.tag.toLowerCase().includes(query) ||
       card.nuance.toLowerCase().includes(query);
-    return matchCat && matchQuery;
+    return matchCat && matchSub && matchQuery;
   });
 
   if (filtered.length === 0) {
@@ -1054,31 +1105,41 @@ function renderSosCards() {
 
 function renderDictionary() {
   const container = document.getElementById('dictionaryContainer');
-  if (!container || !K_VIBE_DATA.dictionary) return;
+  if (!container) return;
 
-  const list = K_VIBE_DATA.dictionary.filter(
-    d => state.currentCategory === 'all' || d.cat === state.currentCategory
-  );
+  // 渲染 itemSwappers（即時品項抽換清單）
+  let swapperHtml = '';
+  if (K_VIBE_DATA.itemSwappers) {
+    const sw = K_VIBE_DATA.itemSwappers;
+    const groups = [
+      { id: 'bbq', title: '🥩 烤肉店部位真實菜單（點擊聽發音）', list: sw.bbq_meats, cat: 'dining' },
+      { id: 'soup', title: '🍲 湯飯燉鍋去料客製（去蔥/韭菜/紫蘇粉）', list: sw.soup_customs, cat: 'dining' },
+      { id: 'cafe', title: '☕ 咖啡廳少冰/淡一點/換燕麥奶', list: sw.cafe_customs, cat: 'dining' },
+      { id: 'clinic', title: '💉 醫美想改善部位抽換詞', list: sw.clinic_targets, cat: 'clinic' }
+    ];
 
-  container.innerHTML = list.map(group => `
-    <div class="bg-white rounded-3xl border border-oat p-4 sm:p-5 shadow-sm space-y-3">
-      <h4 class="font-bold text-sm sm:text-base text-espresso border-b border-oat pb-2">${group.title}</h4>
-      <div class="space-y-2">
-        ${group.items.map(item => `
-          <div onclick="speakKorean('${escapeQuotes(item.kr.split('/')[0])}')" class="cursor-pointer p-2.5 rounded-xl bg-cream/70 hover:bg-rose-50 border border-oat hover:border-rose-200 transition flex items-start justify-between gap-2">
-            <div>
-              <div class="font-kr font-bold text-sm text-espresso">${item.kr} <span class="text-rose-500 text-xs">🔊</span></div>
-              ${state.showLiaison ? `<div class="font-kr text-[11px] text-rose-600 font-medium">[ ${item.liaison} ]</div>` : ''}
-              <div class="text-xs text-mocha mt-0.5">${item.zh}</div>
+    const visibleGroups = groups.filter(g => state.currentCategory === 'all' || g.cat === state.currentCategory);
+
+    swapperHtml = visibleGroups.map(g => `
+      <div class="bg-white rounded-3xl border border-oat p-4 sm:p-5 shadow-sm space-y-3">
+        <h4 class="font-bold text-sm sm:text-base text-espresso border-b border-oat pb-2">${g.title}</h4>
+        <div class="space-y-1.5">
+          ${g.list.map(item => `
+            <div onclick="speakKorean('${escapeQuotes(item.kr)}')" class="cursor-pointer p-2.5 rounded-xl bg-cream/70 hover:bg-rose-50 border border-oat hover:border-rose-200 transition flex items-center justify-between gap-2">
+              <div>
+                <span class="font-kr font-bold text-sm text-espresso">${item.kr}</span>
+                <span class="font-kr text-xs text-rose-600 ml-1.5">[ ${item.liaison} ]</span>
+                <span class="text-xs text-mocha ml-2">= ${item.zh}</span>
+              </div>
+              <span class="text-xs text-rose-500 font-bold shrink-0">🔊</span>
             </div>
-            <button onclick="event.stopPropagation(); openBigCard('${escapeQuotes(item.kr)}', '${escapeQuotes(item.liaison)}', '${escapeQuotes(item.zh)}', '${escapeQuotes(group.title)}')" class="shrink-0 px-2 py-1 rounded-lg bg-white border border-stone-200 text-[11px] text-espresso hover:bg-oat">
-              放大
-            </button>
-          </div>
-        `).join('')}
+          `).join('')}
+        </div>
       </div>
-    </div>
-  `).join('');
+    `).join('');
+  }
+
+  container.innerHTML = swapperHtml;
 }
 
 // ==================== 全螢幕大字出示卡 & 語感潛規則 & 3分鐘閃電刷題 ====================
