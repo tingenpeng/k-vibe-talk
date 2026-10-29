@@ -4,12 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#FAF7F2" />
-  <title>K-Vibe Talk｜首爾極簡實戰韓語</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="K-Vibe 韓語實戰" />
+  <title>K-Vibe Talk｜首爾大人系實戰韓語隨身系統</title>
   <link rel="manifest" href="manifest.json" />
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Pretendard / Noto Sans KR & Noto Sans TC -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;800&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -17,176 +21,413 @@
         extend: {
           colors: {
             cream: '#FAF7F2',
-            oat: '#F0EAE1',
-            espresso: '#231F20',
-            point: '#C85A50',
-            pointLight: '#FDF0ED',
-            pointDark: '#A8433A'
+            oat: '#F2ECE1',
+            rose: {
+              50: '#FDF6F5',
+              100: '#F9E6E4',
+              500: '#C86D65',
+              600: '#B0554E',
+              700: '#8F403A'
+            },
+            sage: {
+              50: '#F3F7F4',
+              100: '#E1ECE4',
+              600: '#4A7859',
+              700: '#375B43'
+            },
+            espresso: '#2C2523',
+            mocha: '#6E625E'
           },
           fontFamily: {
-            sans: ['"Noto Sans TC"', '"Noto Sans KR"', 'sans-serif'],
-            kr: ['"Noto Sans KR"', 'sans-serif']
+            sans: ['"Noto Sans TC"', '"Noto Sans KR"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            kr: ['"Noto Sans KR"', '"Noto Sans TC"', 'sans-serif']
           }
         }
       }
     }
   </script>
   <style>
-    body { background-color: #FAF7F2; color: #231F20; }
-    .slot-pill { transition: all 0.15s ease-out; }
-    .slot-pill:active { transform: scale(0.95); }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    body {
+      background-color: #FAF7F2;
+      color: #2C2523;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .font-kr {
+      font-family: 'Noto Sans KR', 'Noto Sans TC', sans-serif;
+      letter-spacing: -0.01em;
+    }
+    /* 隱藏捲軸但保留滑動 */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* 語塊標籤柔和動畫 */
+    .chunk-pill {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .chunk-pill:active {
+      transform: scale(0.96);
+    }
+    /* 底部安全區域 */
+    .pb-safe {
+      padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans pb-16">
+<body class="min-h-screen flex flex-col selection:bg-rose-100 selection:text-rose-700">
 
-  <!-- 極簡頂部：場景大選單 -->
-  <header class="sticky top-0 z-30 bg-cream/95 backdrop-blur border-b border-stone-200/80 px-4 py-3">
-    <div class="max-w-xl mx-auto flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2">
-        <span class="w-8 h-8 rounded-xl bg-point text-white font-kr font-bold flex items-center justify-center text-sm">한</span>
-        <h1 class="font-bold text-base tracking-tight">K-Vibe 極簡實戰</h1>
+  <!-- 頂部質感狀態列 (Sticky Header) -->
+  <header class="sticky top-0 z-30 bg-cream/95 backdrop-blur-md border-b border-oat px-4 py-3">
+    <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <!-- 品牌與標題 -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-rose-500 text-white flex items-center justify-center font-kr font-extrabold text-lg shadow-sm">
+          한
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="font-bold text-base sm:text-lg tracking-tight text-espresso">K-Vibe Talk</h1>
+            <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">大人系實戰韓語</span>
+          </div>
+          <p class="text-xs text-mocha hidden sm:block">不背死板教材・專攻醫美、藥局、逛街、餐廳的自然得體應對</p>
+        </div>
       </div>
-      <div class="flex items-center gap-1.5">
-        <button onclick="toggleSpeed()" id="speedBtn" class="px-2.5 py-1 rounded-xl bg-white border border-stone-200 text-xs font-semibold text-espresso shadow-sm">
-          🎧 正常速 1.0x
+
+      <!-- 練習狀態切換器：通勤免開口 vs 開口實戰 + 語速切換 + 3分鐘閃電刷題 -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <!-- 3分鐘閃電特訓按鈕 -->
+        <button onclick="openFlashDrill()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-amber-100/90 hover:bg-amber-200/80 text-amber-900 text-xs font-semibold transition shadow-sm" title="抓空檔 3 分鐘隨機刷 5 題">
+          <span>⚡</span>
+          <span>抓空檔3分鐘</span>
+        </button>
+
+        <!-- 通勤靜音 / 開口跟讀切換 -->
+        <button id="practiceModeBtn" onclick="togglePracticeMode()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-oat hover:bg-stone-200 text-espresso text-xs font-medium transition">
+          <span id="practiceModeIcon">🗣️</span>
+          <span id="practiceModeLabel">開口實戰</span>
+        </button>
+
+        <!-- 語速切換 (0.85x 清晰 / 1.15x 店員快嘴) -->
+        <button id="speedToggleBtn" onclick="toggleSpeechSpeed()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-oat hover:bg-stone-200 text-espresso text-xs font-medium transition" title="切換韓文語音朗讀速度">
+          <span>🎧</span>
+          <span id="speedToggleLabel">正常速 1.0x</span>
+        </button>
+
+        <!-- 語感潛規則寶典按鈕 -->
+        <button onclick="openEtiquetteModal()" class="p-1.5 rounded-xl bg-sage-100 hover:bg-sage-200 text-sage-700 text-xs font-semibold px-2.5 transition" title="不卑不亢韓國人語感潛規則">
+          💡 語感心法
         </button>
       </div>
     </div>
 
-    <!-- 一級大場景分頁 -->
-    <div class="max-w-xl mx-auto mt-2.5 grid grid-cols-4 gap-1 text-center" id="mainSceneTabs">
-      <button onclick="switchScene('bbq')" id="scene-bbq" class="scene-tab py-2 rounded-xl text-xs font-bold bg-espresso text-white shadow-sm transition">
-        🥩 烤肉烤腸
-      </button>
-      <button onclick="switchScene('soup')" id="scene-soup" class="scene-tab py-2 rounded-xl text-xs font-bold bg-white text-stone-600 border border-stone-200 transition">
-        🍲 湯飯燉鍋
-      </button>
-      <button onclick="switchScene('cafe')" id="scene-cafe" class="scene-tab py-2 rounded-xl text-xs font-bold bg-white text-stone-600 border border-stone-200 transition">
-        ☕ 咖啡甜點
-      </button>
-      <button onclick="switchScene('clinic')" id="scene-clinic" class="scene-tab py-2 rounded-xl text-xs font-bold bg-white text-stone-600 border border-stone-200 transition">
-        💉 醫美診所
-      </button>
-    </div>
-
-    <!-- 額外場景（服飾/藥局/逛街）下拉或第二行 -->
-    <div class="max-w-xl mx-auto mt-1.5 grid grid-cols-3 gap-1 text-center">
-      <button onclick="switchScene('shopping')" id="scene-shopping" class="scene-tab py-1.5 rounded-xl text-xs font-bold bg-white text-stone-600 border border-stone-200 transition">
-        👗 漢南洞買衣服鞋子
-      </button>
-      <button onclick="switchScene('pharmacy')" id="scene-pharmacy" class="scene-tab py-1.5 rounded-xl text-xs font-bold bg-white text-stone-600 border border-stone-200 transition">
-        💊 藥局採買急救
-      </button>
-      <button onclick="switchScene('daily')" id="scene-daily" class="scene-tab py-1.5 rounded-xl text-xs font-bold bg-white text-stone-600 border border-stone-200 transition">
-        🚕 計程車與退稅
-      </button>
+    <!-- 五大旅遊場景分類過濾列 -->
+    <div class="max-w-4xl mx-auto mt-2.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5" id="categoryFilterBar">
+      <!-- 由 app.js 動態渲染 -->
     </div>
   </header>
 
-  <!-- 主舞台：一眼看懂的【萬用抽換式造句機】 -->
-  <main class="flex-1 max-w-xl w-full mx-auto px-4 pt-4 space-y-4">
+  <!-- 主內容區 -->
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 pt-4 pb-safe">
 
-    <!-- 核心互動卡 -->
-    <section class="bg-white rounded-3xl p-5 border border-stone-200/90 shadow-sm space-y-4">
-      <div class="flex items-center justify-between border-b border-stone-100 pb-2">
-        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-pointLight text-point" id="sceneBadge">
-          🥩 烤肉烤腸專用句
-        </span>
-        <span class="text-[11px] text-stone-400">點擊句子即可播放發音 🔊</span>
+    <!-- 輔助顯示開關列 (連音標示 / 中文翻譯預設開關) -->
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-4 bg-oat/60 rounded-2xl px-3.5 py-2 text-xs text-mocha">
+      <div class="flex items-center gap-2">
+        <span class="font-semibold text-espresso">👁️ 韓字閱讀輔助：</span>
+        <label class="inline-flex items-center gap-1 cursor-pointer select-none">
+          <input type="checkbox" id="toggleLiaison" checked onchange="updateDisplayPrefs()" class="rounded text-rose-500 focus:ring-0" />
+          <span>顯示實際連音韓字</span>
+        </label>
+        <label class="inline-flex items-center gap-1 cursor-pointer select-none ml-2">
+          <input type="checkbox" id="toggleChunkNote" checked onchange="updateDisplayPrefs()" class="rounded text-rose-500 focus:ring-0" />
+          <span>顯示語塊拆解與潛台詞</span>
+        </label>
       </div>
+      <div class="text-[11px] text-mocha">
+        點選任何韓文句子即可聽發音 🔊
+      </div>
+    </div>
 
-      <!-- 句子主舞台（大字、極簡、填空區塊放大） -->
-      <div onclick="playCurrentSentence()" class="cursor-pointer bg-pointLight/50 hover:bg-pointLight border-2 border-point/30 hover:border-point rounded-2xl p-4 transition group text-center space-y-2">
-        <div class="font-kr font-extrabold text-2xl sm:text-3xl text-espresso tracking-tight leading-snug flex flex-wrap items-center justify-center gap-1.5">
-          <span id="displayOpener" class="text-stone-700"></span>
-          <span id="displaySlot" class="bg-white px-3 py-1 rounded-xl text-point border-2 border-point shadow-sm"></span>
-          <span id="displayEnding" class="text-stone-900"></span>
+    <!-- TAB 1: 萬用句型積木 (Pattern Lego) -->
+    <section id="tab-patterns" class="tab-panel space-y-5">
+      <div class="bg-gradient-to-r from-rose-50 to-oat p-4 rounded-2xl border border-rose-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="font-bold text-base sm:text-lg text-espresso flex items-center gap-1.5">
+            <span>🧱 萬用句型積木（不背文法，30秒組出千句）</span>
+          </h2>
+          <p class="text-xs sm:text-sm text-mocha mt-0.5">
+            點選下方的 <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-medium">1. 禮貌緩衝開場</span> ＋ <span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 font-medium">2. 核心需求替換詞</span> ＋ <span class="px-1.5 py-0.5 rounded bg-sage-100 text-sage-700 font-medium">3. 得體해요體結尾</span>，立即組合成最道地的韓文並聽發音！
+          </p>
         </div>
-        <div class="text-xs font-kr font-semibold text-point" id="displayLiaison"></div>
-        <p class="text-sm font-bold text-stone-600 pt-1" id="displayZh"></p>
-      </div>
-
-      <!-- 播放與功能按鈕 -->
-      <div class="grid grid-cols-3 gap-2">
-        <button onclick="playCurrentSentence(1.0)" class="py-2.5 rounded-xl bg-point hover:bg-pointDark text-white font-bold text-xs shadow-sm flex items-center justify-center gap-1">
-          <span>🔊 聽發音</span>
-        </button>
-        <button onclick="playCurrentSentence(0.8)" class="py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold text-xs">
-          🐢 慢速連音
-        </button>
-        <button onclick="openShowCard()" class="py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-espresso font-semibold text-xs">
-          🔍 放大給店員看
+        <button onclick="openCustomPhraseModal()" class="shrink-0 self-start sm:self-center px-3 py-2 rounded-xl bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 text-xs font-semibold shadow-sm transition">
+          ＋ 新增我的私房詞彙
         </button>
       </div>
 
-      <!-- 萬用句型主幹選擇（例如：點餐 2 人份 / 換烤盤 / 續小菜） -->
-      <div class="pt-2 border-t border-stone-100">
-        <span class="block text-xs font-bold text-stone-500 mb-2">1. 選擇你想做的事（切換句型骨架）：</span>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5" id="templateSelector">
-          <!-- 由 app.js 動態渲染 -->
+      <div id="patternsContainer" class="space-y-6">
+        <!-- 由 app.js 動態渲染 -->
+      </div>
+    </section>
+
+    <!-- TAB 2: 店員連珠炮破解 (Rapid-Fire Decoder) -->
+    <section id="tab-rapid" class="tab-panel hidden space-y-5">
+      <div class="bg-gradient-to-r from-amber-50/90 to-oat p-4 rounded-2xl border border-amber-200/60">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="font-bold text-base sm:text-lg text-espresso">⚡ 店員連珠炮破解＆反射秒回特訓</h2>
+            <p class="text-xs sm:text-sm text-mocha mt-0.5">
+              在韓國結帳、醫美報到、點咖啡時，店員常以 1.3 倍速飆出一長串習慣用語。先試著「盲聽抓關鍵字」，再挑選最得體的回答開口練！
+            </p>
+          </div>
+          <button id="blindListenToggle" onclick="toggleBlindMode()" class="px-3 py-1.5 rounded-xl bg-white border border-amber-300 text-amber-900 text-xs font-semibold shadow-sm hover:bg-amber-50 transition">
+            🙈 開啟「盲聽挑戰模式」（先聽聲音不看字）
+          </button>
         </div>
       </div>
 
-      <!-- 核心填空抽換詞（點哪顆，上面的空格就換成哪顆！） -->
-      <div class="pt-2 border-t border-stone-100">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-bold text-point" id="slotSectionTitle">2. 點選你想抽換的品項/細節：</span>
+      <div id="rapidFireContainer" class="space-y-5">
+        <!-- 由 app.js 動態渲染 -->
+      </div>
+    </section>
+
+    <!-- TAB 3: 情境實戰 RPG + AI 自由對談 (Roleplay & AI Tutor) -->
+    <section id="tab-rpg" class="tab-panel hidden space-y-6">
+      <!-- 模式切換子選單：劇本闖關 vs AI 自由對談 -->
+      <div class="flex items-center gap-2 bg-oat p-1.5 rounded-2xl w-fit">
+        <button id="subTabScriptBtn" onclick="switchRpgMode('script')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-espresso shadow-sm transition">
+          🎭 經典實戰劇本闖關（免金鑰）
+        </button>
+        <button id="subTabAiBtn" onclick="switchRpgMode('ai')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-mocha hover:text-espresso transition">
+          🤖 AI 真人情境自由對談＆造句教練
+        </button>
+      </div>
+
+      <!-- 子面板 A: 內建劇本分支闖關 -->
+      <div id="rpgScriptPanel" class="space-y-4">
+        <div id="scenarioSelector" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- 由 app.js 動態渲染劇本選擇卡 -->
         </div>
-        <div class="flex flex-wrap gap-2" id="slotPillsContainer">
-          <!-- 由 app.js 動態渲染按鈕 -->
+        <div id="scenarioStage" class="bg-white rounded-3xl border border-oat shadow-sm p-4 sm:p-6">
+          <!-- 由 app.js 動態渲染互動對話舞台 -->
+        </div>
+      </div>
+
+      <!-- 子面板 B: AI 自由角色扮演與專屬造句教練 -->
+      <div id="rpgAiPanel" class="hidden space-y-4">
+        <div class="bg-white rounded-3xl border border-oat p-4 sm:p-6 shadow-sm space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-oat pb-3">
+            <div>
+              <h3 class="font-bold text-base text-espresso flex items-center gap-2">
+                <span>🤖 韓國店員 / 醫美室長 AI 自由對談＆批改教練</span>
+              </h3>
+              <p class="text-xs text-mocha mt-0.5">
+                未填 API Key 時使用「內建智慧情境導師」即時回饋；填入你的 Gemini API Key 後即可享受無限自由對話與語氣微調！
+              </p>
+            </div>
+            <button onclick="toggleApiKeyBox()" class="px-3 py-1.5 rounded-xl bg-oat hover:bg-stone-200 text-xs font-semibold text-espresso transition">
+              🔑 設定 Gemini API Key <span id="apiKeyStatusBadge" class="ml-1 px-1.5 py-0.5 rounded bg-stone-300 text-[10px]">內建引擎</span>
+            </button>
+          </div>
+
+          <!-- API Key 設定抽屜 -->
+          <div id="apiKeyDrawer" class="hidden bg-cream p-3.5 rounded-2xl border border-oat space-y-2 text-xs">
+            <div class="font-semibold text-espresso">設定 Google Gemini API Key（儲存在您的瀏覽器本機，不會上傳至任何第三方伺服器）：</div>
+            <div class="flex gap-2">
+              <input type="password" id="geminiApiKeyInput" placeholder="貼上 AIzaSy... 開頭的 Gemini API Key" class="flex-1 px-3 py-2 rounded-xl border border-stone-300 bg-white focus:outline-none focus:border-rose-500" />
+              <button onclick="saveApiKey()" class="px-4 py-2 rounded-xl bg-rose-500 text-white font-semibold hover:bg-rose-600 transition">儲存</button>
+              <button onclick="clearApiKey()" class="px-3 py-2 rounded-xl bg-stone-200 text-espresso hover:bg-stone-300 transition">清除</button>
+            </div>
+            <p class="text-[11px] text-mocha">提示：即使不填寫 Key，下方也能直接使用「中文轉道地韓文造句」與「模擬店員問答」！</p>
+          </div>
+
+          <!-- 選擇對談對象 -->
+          <div class="flex flex-wrap gap-2 items-center text-xs">
+            <span class="font-semibold text-mocha">選擇練習對象：</span>
+            <button onclick="setAiPersona('clinic')" id="persona-clinic" class="persona-btn px-3 py-1.5 rounded-xl bg-rose-500 text-white font-semibold transition">👩‍⚕️ 江南醫美室長</button>
+            <button onclick="setAiPersona('pharmacy')" id="persona-pharmacy" class="persona-btn px-3 py-1.5 rounded-xl bg-oat text-espresso font-medium transition">💊 弘大藥局藥師</button>
+            <button onclick="setAiPersona('shopping')" id="persona-shopping" class="persona-btn px-3 py-1.5 rounded-xl bg-oat text-espresso font-medium transition">👗 漢南洞服飾店員</button>
+            <button onclick="setAiPersona('dining')" id="persona-dining" class="persona-btn px-3 py-1.5 rounded-xl bg-oat text-espresso font-medium transition">🍲 烤肉店熱情老闆</button>
+            <button onclick="setAiPersona('translator')" id="persona-translator" class="persona-btn px-3 py-1.5 rounded-xl bg-oat text-espresso font-medium transition">✨ 我想講這句（中文轉不卑不亢韓文）</button>
+          </div>
+
+          <!-- 聊天訊息紀錄區 -->
+          <div id="aiChatHistory" class="h-80 overflow-y-auto bg-cream/70 rounded-2xl p-4 space-y-3 border border-oat">
+            <!-- 初始歡迎訊息由 app.js 注入 -->
+          </div>
+
+          <!-- 輸入與語音發送區 -->
+          <div class="flex flex-col sm:flex-row gap-2">
+            <div class="flex-1 flex items-center gap-2 bg-cream rounded-2xl px-3 py-1.5 border border-stone-300 focus-within:border-rose-500">
+              <button onclick="startAiVoiceInput()" id="aiMicBtn" class="p-2 rounded-xl bg-rose-100 text-rose-700 hover:bg-rose-200 transition" title="按一下講韓文或中文">
+                🎤
+              </button>
+              <input type="text" id="aiUserInput" onkeydown="if(event.key==='Enter') sendAiMessage()" placeholder="輸入韓文練習回應，或輸入你想表達的中文（如：我想問這件衣服有沒有新的）..." class="w-full bg-transparent text-sm focus:outline-none py-1.5" />
+            </div>
+            <button onclick="sendAiMessage()" class="px-5 py-2.5 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-semibold text-sm shadow-sm transition shrink-0">
+              發送 / 請教練指導
+            </button>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 該場景專屬「店員連珠炮快嘴」一秒聽懂（精簡至最常被問的 1~2 句） -->
-    <section class="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-sm space-y-3">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-1.5">
-          <span class="text-base">⚡</span>
-          <h3 class="font-bold text-sm text-espresso" id="clerkTitle">店員會對你快速飆這句：</h3>
-        </div>
-        <button onclick="playClerkVoice()" class="px-2.5 py-1 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs">
-          🔊 聽店員快嘴
-        </button>
-      </div>
-
-      <div class="p-3 bg-stone-50 rounded-2xl border border-stone-200 space-y-1">
-        <p class="font-kr font-bold text-base text-espresso" id="clerkKr"></p>
-        <p class="text-xs font-bold text-stone-500" id="clerkZh"></p>
-        <p class="text-[11px] text-amber-800 pt-1" id="clerkTip"></p>
-      </div>
-
-      <div class="pt-1">
-        <span class="block text-xs font-bold text-stone-500 mb-1.5">👉 你可以一秒這樣回（不卑不亢）：</span>
-        <div onclick="playReplyVoice()" class="cursor-pointer p-3 bg-pointLight/40 hover:bg-pointLight rounded-2xl border border-point/30 flex items-center justify-between gap-2">
+    <!-- TAB 4: 韓國現場救急 SOS 面板 (Live Survival Deck) -->
+    <section id="tab-sos" class="tab-panel hidden space-y-4">
+      <div class="bg-gradient-to-r from-rose-600 to-rose-500 text-white p-4 sm:p-5 rounded-3xl shadow-md">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <p class="font-kr font-bold text-sm sm:text-base text-espresso" id="replyKr"></p>
-            <p class="text-xs text-stone-500 mt-0.5" id="replyZh"></p>
+            <span class="inline-block text-[11px] font-bold uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full mb-1">在韓國當地實戰救急</span>
+            <h2 class="font-bold text-lg sm:text-xl">🆘 韓國現場救急面板（一鍵發音 ＆ 放大給店員看）</h2>
+            <p class="text-xs sm:text-sm text-rose-100 mt-0.5">
+              人在醫美診所、藥局、鞋店或餐廳臨時腦袋空白？直接搜尋或點選下方卡片，可自己看連音照念、播放語音，或點「放大出示」讓韓國人秒懂！
+            </p>
           </div>
-          <span class="text-xs text-point font-bold shrink-0">🔊 點擊秒回</span>
+        </div>
+        <!-- 快速搜尋框 -->
+        <div class="mt-3 relative">
+          <input type="text" id="sosSearchInput" oninput="renderSosCards()" placeholder="🔍 搜尋關鍵字（例如：麻藥、退稅、消腫、痘痘、新貨、240、少辣、分開付...）" class="w-full px-4 py-2.5 rounded-2xl bg-white text-espresso text-sm placeholder-mocha focus:outline-none shadow-inner" />
+        </div>
+      </div>
+
+      <!-- SOS 卡片網格 -->
+      <div id="sosCardsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        <!-- 由 app.js 動態渲染 -->
+      </div>
+
+      <!-- 📖 常用實戰單字與常用用語小抄庫（直接收錄點擊聽發音） -->
+      <div class="pt-5 space-y-3">
+        <div class="border-b border-oat pb-2">
+          <h3 class="font-bold text-base sm:text-lg text-espresso flex items-center gap-1.5">
+            <span>📖 韓國現場必備：常用單字與客製用語小抄</span>
+          </h3>
+          <p class="text-xs text-mocha mt-0.5">點選任何單字或用語即可直接播放韓語發音 🔊</p>
+        </div>
+        <div id="vocabDictionaryContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <!-- 由 app.js 動態渲染 -->
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- 放大給店員看的全螢幕大字彈窗 -->
-  <div id="showCardModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-6 text-center space-y-4 relative">
-      <button onclick="closeShowCard()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 text-stone-600 font-bold flex items-center justify-center">✕</button>
-      <span class="inline-block px-3 py-1 rounded-full bg-pointLight text-point text-xs font-bold">韓國現場出示卡</span>
-      <div class="py-6 px-3 bg-cream rounded-2xl border-2 border-point">
-        <p class="font-kr font-extrabold text-2xl sm:text-3xl text-espresso leading-snug" id="showModalKr"></p>
-      </div>
-      <p class="text-xs text-stone-500" id="showModalZh"></p>
-      <button onclick="playCurrentSentence(0.95)" class="w-full py-3 rounded-2xl bg-point text-white font-bold text-sm shadow-md">
-        🔊 播放發音
+  <!-- 底部固定導覽列 (Mobile-first Bottom Navigation) -->
+  <nav class="fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-oat shadow-lg">
+    <div class="max-w-4xl mx-auto grid grid-cols-4 px-2 py-1.5">
+      <button onclick="switchMainTab('patterns')" id="nav-patterns" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-rose-600 font-bold transition">
+        <span class="text-lg leading-none">🧱</span>
+        <span class="text-[11px] mt-1">句型積木</span>
       </button>
+      <button onclick="switchMainTab('rapid')" id="nav-rapid" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-mocha hover:text-espresso font-medium transition">
+        <span class="text-lg leading-none">⚡</span>
+        <span class="text-[11px] mt-1">店員連珠炮</span>
+      </button>
+      <button onclick="switchMainTab('rpg')" id="nav-rpg" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-mocha hover:text-espresso font-medium transition">
+        <span class="text-lg leading-none">🎭</span>
+        <span class="text-[11px] mt-1">對談實戰</span>
+      </button>
+      <button onclick="switchMainTab('sos')" id="nav-sos" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-mocha hover:text-espresso font-medium transition">
+        <span class="text-lg leading-none">🆘</span>
+        <span class="text-[11px] mt-1">韓國現場救急</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MODAL 1: 放大給韓國店員看的大字卡 (Show to Clerk Fullscreen Card) -->
+  <div id="bigCardModal" class="fixed inset-0 z-50 hidden bg-espresso/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5 text-center relative animate-fadeIn">
+      <button onclick="closeBigCardModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-oat text-espresso font-bold text-lg flex items-center justify-center hover:bg-stone-300">✕</button>
+      <div class="inline-block px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-bold" id="bigCardTag">韓國現場溝通卡</div>
+      <p class="text-xs text-mocha" id="bigCardZh"></p>
+      <div class="py-6 px-4 bg-cream rounded-2xl border-2 border-rose-200">
+        <p class="font-kr font-extrabold text-2xl sm:text-4xl leading-snug text-espresso break-keep" id="bigCardKr"></p>
+        <p class="font-kr text-sm text-rose-600 font-semibold mt-3" id="bigCardLiaison"></p>
+      </div>
+      <div class="flex items-center justify-center gap-3">
+        <button id="bigCardSpeakBtn" class="flex-1 py-3.5 px-5 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2">
+          <span>🔊 播放韓文語音</span>
+        </button>
+        <button onclick="closeBigCardModal()" class="py-3.5 px-5 rounded-2xl bg-oat hover:bg-stone-200 text-espresso font-semibold text-sm transition">
+          關閉
+        </button>
+      </div>
     </div>
   </div>
 
+  <!-- MODAL 2: 抓空檔 3 分鐘閃電特訓 (3-Minute Micro-Drill Modal) -->
+  <div id="flashDrillModal" class="fixed inset-0 z-50 hidden bg-espresso/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-cream w-full max-w-xl rounded-3xl p-5 sm:p-6 shadow-2xl border border-oat space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-oat pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">⚡</span>
+          <div>
+            <h3 class="font-bold text-base text-espresso">抓空檔 3 分鐘閃電特訓</h3>
+            <p class="text-xs text-mocha" id="drillProgressText">第 1 / 5 題</p>
+          </div>
+        </div>
+        <button onclick="closeFlashDrill()" class="w-8 h-8 rounded-full bg-oat text-espresso font-bold flex items-center justify-center">✕</button>
+      </div>
+      <div id="flashDrillContent" class="space-y-4">
+        <!-- 由 app.js 動態渲染 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: 不卑不亢「韓國人語感潛規則」心法寶典 -->
+  <div id="etiquetteModal" class="fixed inset-0 z-50 hidden bg-espresso/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-cream w-full max-w-2xl rounded-3xl p-5 sm:p-6 shadow-2xl border border-oat space-y-4 max-h-[88vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-oat pb-3">
+        <div>
+          <h3 class="font-bold text-lg text-espresso">💡 對應得當、不卑不亢：韓國人語感潛規則</h3>
+          <p class="text-xs text-mocha">為什麼課本教的韓文聽起來很怪？掌握這 4 個原則，韓國人對你瞬間超客氣！</p>
+        </div>
+        <button onclick="closeEtiquetteModal()" class="w-8 h-8 rounded-full bg-oat text-espresso font-bold flex items-center justify-center">✕</button>
+      </div>
+      <div id="etiquetteList" class="space-y-3.5">
+        <!-- 由 app.js 動態渲染 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: 新增私房替換詞/救急句 (Custom Phrase Modal) -->
+  <div id="customPhraseModal" class="fixed inset-0 z-50 hidden bg-espresso/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-cream w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl border border-oat space-y-4">
+      <div class="flex items-center justify-between border-b border-oat pb-3">
+        <h3 class="font-bold text-base text-espresso">＋ 新增我的私房實戰句 / 醫美藥品詞</h3>
+        <button onclick="closeCustomPhraseModal()" class="w-8 h-8 rounded-full bg-oat text-espresso font-bold flex items-center justify-center">✕</button>
+      </div>
+      <div class="space-y-3 text-xs sm:text-sm">
+        <div>
+          <label class="block font-semibold text-espresso mb-1">選擇場景分類</label>
+          <select id="customCat" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white">
+            <option value="clinic">💉 醫美診所</option>
+            <option value="pharmacy">💊 藥局採買</option>
+            <option value="shopping">👗 服飾鞋店</option>
+            <option value="dining">🍲 餐廳咖啡</option>
+            <option value="daily">🛍️ 美妝雜貨與交通</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-espresso mb-1">你想表達的中文意思</label>
+          <input type="text" id="customZh" placeholder="例如：我想打玩美電波 300 發，請問多少錢？" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white" />
+        </div>
+        <div>
+          <label class="block font-semibold text-espresso mb-1">韓文句子（可留空讓系統自動幫你組合！）</label>
+          <input type="text" id="customKr" placeholder="例如：올리지오 300샷 하고 싶은데 얼마예요?" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white font-kr" />
+        </div>
+        <div>
+          <label class="block font-semibold text-espresso mb-1">發音連音提醒（選填）</label>
+          <input type="text" id="customLiaison" placeholder="例如：올리지오 삼백쌰 타고 시픈데 얼마예요?" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white font-kr" />
+        </div>
+        <button onclick="saveCustomPhrase()" class="w-full py-3 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-bold shadow-sm transition">
+          儲存並加入「現場救急面板」
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 載入資料庫與主程式 -->
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
