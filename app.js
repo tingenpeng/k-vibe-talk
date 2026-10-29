@@ -1162,13 +1162,205 @@ function closeFlashDrill() {
   document.getElementById('flashDrillModal').classList.add('hidden');
 }
 
-// ==================== 新增私房詞彙 Modal ====================
+// ==================== 新增私房詞彙 Modal ＆ 智慧韓文翻譯引擎 ====================
 function openCustomPhraseModal() {
   document.getElementById('customPhraseModal').classList.remove('hidden');
 }
 
 function closeCustomPhraseModal() {
   document.getElementById('customPhraseModal').classList.add('hidden');
+}
+
+function speakCustomDraft() {
+  const kr = document.getElementById('customKr').value.trim();
+  if (kr) speakKorean(kr);
+}
+
+// 智慧韓文句子生成引擎（支援繁中/簡中自然轉道地해요體）
+async function autoGenerateKoreanPhrase() {
+  const zh = document.getElementById('customZh').value.trim();
+  const cat = document.getElementById('customCat').value;
+  const btn = document.getElementById('autoGenBtn');
+
+  if (!zh) {
+    alert('請先輸入您想表達的中文意思喔！');
+    return;
+  }
+
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '⏳ 翻譯中...';
+  btn.disabled = true;
+
+  try {
+    // 1. 若有設定 Gemini Key，使用 AI 輸出最得體해요體與連音
+    const apiKey = localStorage.getItem('kvibe_gemini_key');
+    if (apiKey) {
+      const prompt = `請將這句旅遊中文翻譯成韓國人日常最自然得體、不卑不亢的「해요體」（包含醫美/藥局/逛街/餐廳術語），並給出實際連音標示。中文：「${zh}」，場景：${cat}。請用JSON回覆：{"kr":"韓文句子","liaison":"連音韓文"}`;
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: 'application/json' } })
+      });
+      const data = await res.json();
+      const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
+      document.getElementById('customKr').value = parsed.kr;
+      document.getElementById('customLiaison').value = parsed.liaison;
+      speakKorean(parsed.kr);
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+      return;
+    }
+
+    // 2. 免 Key 本地智慧翻譯與專屬語料對照庫
+    const translated = smartTranslateZhToKr(zh, cat);
+    document.getElementById('customKr').value = translated.kr;
+    document.getElementById('customLiaison').value = translated.liaison;
+    speakKorean(translated.kr);
+  } catch (err) {
+    console.warn('翻譯引擎回退', err);
+    const fallback = smartTranslateZhToKr(zh, cat);
+    document.getElementById('customKr').value = fallback.kr;
+    document.getElementById('customLiaison').value = fallback.liaison;
+    speakKorean(fallback.kr);
+  } finally {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }
+}
+
+// 本地超齊全專有詞庫與得體句型組裝器
+function smartTranslateZhToKr(zh, cat) {
+  const z = zh.toLowerCase();
+
+  // 醫美相關
+  if (cat === 'clinic' || z.includes('電波') || z.includes('音波') || z.includes('麗珠蘭') || z.includes('水光') || z.includes('肉毒') || z.includes('發') || z.includes('cc') || z.includes('麻藥')) {
+    let item = '시술';
+    if (z.includes('玩美電波') || z.includes('完美電波') || z.includes('oligio')) item = '올리지오';
+    else if (z.includes('鳳凰電波') || z.includes('thermage')) item = '써마지 FLX';
+    else if (z.includes('海芙音波') || z.includes('音波') || z.includes('shurink') || z.includes('ulthera')) item = '슈링크 유니버스';
+    else if (z.includes('麗珠蘭') || z.includes('rejuran')) item = '리쥬란 힐러';
+    else if (z.includes('喬雅露') || z.includes('juvelook')) item = '쥬베룩';
+    else if (z.includes('肉毒') || z.includes('botox')) item = '보톡스';
+    else if (z.includes('皮秒')) item = '피코토닝';
+
+    // 擷取數字 (例如 300發, 600發, 2cc)
+    const shotsMatch = z.match(/(\d+)\s*(發|shot|샷)/i);
+    const ccMatch = z.match(/(\d+)\s*(cc|씨씨)/i);
+    let qty = '';
+    if (shotsMatch) qty = `${shotsMatch[1]}샷 `;
+    else if (ccMatch) qty = `${ccMatch[1]}cc `;
+
+    if (z.includes('多少錢') || z.includes('價格') || z.includes('費用') || z.includes('怎麼算')) {
+      return {
+        kr: `${item} ${qty}하고 싶은데 얼마예요?`,
+        liaison: `${item} ${qty}하고 시픈데 얼마예요?`
+      };
+    }
+    if (z.includes('麻藥') && (z.includes('厚') || z.includes('痛'))) {
+      return {
+        kr: '통증에 예민해서 마취크림 좀 두껍게 발라 주세요.',
+        liaison: '통쯩에 예미내서 마취크림 좀 두껍께 발라 주세요.'
+      };
+    }
+    return {
+      kr: `${item} ${qty}상담받고 싶어요. 추천 부탁드려요.`,
+      liaison: `${item} ${qty}상담받꼬 시퍼요. 추천 부탁뜨려요.`
+    };
+  }
+
+  // 藥局相關
+  if (cat === 'pharmacy' || z.includes('藥') || z.includes('消腫') || z.includes('胃') || z.includes('痘痘') || z.includes('止痛') || z.includes('b群') || z.includes('貼布')) {
+    let item = '약';
+    if (z.includes('消腫')) item = '붓기 빨리 빠지는 약';
+    else if (z.includes('胃') || z.includes('辣') || z.includes('灼熱')) item = '짜 먹는 위장약';
+    else if (z.includes('悶痘') || z.includes('紅腫痘')) item = '화농성 여드름 연고';
+    else if (z.includes('閉鎖') || z.includes('粉刺')) item = '좁쌀여드름 연고';
+    else if (z.includes('除疤') || z.includes('去疤') || z.includes('痘印') || z.includes('noscarna')) item = '노스카나 겔';
+    else if (z.includes('止痛') || z.includes('頭痛') || z.includes('經痛')) item = '효과 빠른 진통제';
+    else if (z.includes('b群') || z.includes('疲勞') || z.includes('安瓶')) item = '고함량 비타민이랑 글루콤';
+    else if (z.includes('貼布')) item = '쿨파스';
+
+    if (z.includes('怎麼吃') || z.includes('吃法') || z.includes('幾次')) {
+      return {
+        kr: '이 약은 하루에 몇 번 식전이나 식후에 먹나요?',
+        liaison: '이 야근 하루에 몇 뻔 식쩌니나 시쿠에 멍나요?'
+      };
+    }
+    return {
+      kr: `혹시 ${item} 있나요? 추천 좀 부탁드려요.`,
+      liaison: `혹씨 ${item} 인나요? 추천 좀 부탁뜨려요.`
+    };
+  }
+
+  // 服飾與鞋子相關
+  if (cat === 'shopping' || z.includes('衣服') || z.includes('褲子') || z.includes('鞋') || z.includes('尺寸') || z.includes('新') || z.includes('試穿')) {
+    const sizeMatch = z.match(/(\d{3})/); // 如 235, 240, 245
+    if (z.includes('新') || z.includes('庫存')) {
+      return {
+        kr: '이걸로 할게요! 진열 상품 말고 새 상품으로 꺼내 주실 수 있나요?',
+        liaison: '이걸로 할께요! 지녈 상품 말고 새 상푸므로 꺼내 주실 쑤 인나요?'
+      };
+    }
+    if (sizeMatch || z.includes('鞋') || z.includes('試穿鞋')) {
+      const sz = sizeMatch ? sizeMatch[1] : '240';
+      return {
+        kr: `혹시 이 신발 ${sz} 사이즈 있나요? 신어 봐도 될까요?`,
+        liaison: `혹씨 이 신발 ${sz} 싸이즈 인나요? 시너 봐도 될까요?`
+      };
+    }
+    if (z.includes('大一號') || z.includes('大號')) {
+      return {
+        kr: '이거 조금 타이트한데 한 치수 더 큰 걸로 입어 봐도 될까요?',
+        liaison: '이거 조금 타이트한데 한 치수 더 큰 걸로 이버 봐도 될까요?'
+      };
+    }
+    if (z.includes('試穿') || z.includes('試衣間')) {
+      return {
+        kr: '저기요, 혹시 이 옷 피팅룸에서 입어 봐도 될까요?',
+        liaison: '저기요, 혹씨 이 옫 피팅루메서 이버 봐도 될까요?'
+      };
+    }
+  }
+
+  // 餐廳咖啡相關
+  if (cat === 'dining' || z.includes('辣') || z.includes('蔥') || z.includes('韭菜') || z.includes('冰') || z.includes('水') || z.includes('小菜') || z.includes('烤網') || z.includes('結帳') || z.includes('分開')) {
+    if (z.includes('分開') || z.includes('一人一半') || z.includes('各自')) {
+      return {
+        kr: '계산할게요! 혹시 카드 두 개로 반반씩 따로 결제할 수 있을까요?',
+        liaison: '계산할께요! 혹씨 카드 두 개로 반반씩 따로 결쪠할 쑤 이쓸까요?'
+      };
+    }
+    if (z.includes('蔥') || z.includes('韭菜') || z.includes('紫蘇')) {
+      return {
+        kr: '파랑 부추는 아예 빼 주시고요, 덜 맵게 해 주세요.',
+        liaison: '파랑 부추는 아예 빼 주시고요, 덜 맵께 해 주세요.'
+      };
+    }
+    if (z.includes('少辣') || z.includes('不辣') || z.includes('微辣')) {
+      return {
+        kr: '덜 맵게 해 주실 수 있나요? 잘 먹겠습니다!',
+        liaison: '덜 맵께 해 주실 쑤 인나요? 잘 머걷씀니다!'
+      };
+    }
+    if (z.includes('烤網') || z.includes('換網')) {
+      return {
+        kr: '사장님 죄송한데 불판 좀 갈아 주실 수 있나요?',
+        liaison: '사장님 죄송한데 불판 좀 가라 주실 쑤 인나요?'
+      };
+    }
+    if (z.includes('冰') || z.includes('燕麥') || z.includes('淡')) {
+      return {
+        kr: '아메리카노 연하게 얼음 조금만 넣어 주시고, 오트밀크로 바꿔 주세요.',
+        liaison: '아메리카노 여나게 어름 조그만 너어 주시고, 오트밀크로 바꿔 주세요.'
+      };
+    }
+  }
+
+  // 通用得體禮貌詢問句型（帶入中文核心語義）
+  return {
+    kr: `혹시 ${zh} 가능한가요? 확인 부탁드려요.`,
+    liaison: `혹씨 ${zh} 가능항가요? 화긴 부탁뜨려요.`
+  };
 }
 
 function saveCustomPhrase() {
@@ -1178,12 +1370,15 @@ function saveCustomPhrase() {
   let liaison = document.getElementById('customLiaison').value.trim();
 
   if (!zh) {
-    alert('請輸入您想表達的中文意思喔！');
+    alert('請先輸入您想表達的中文意思喔！');
     return;
   }
+
+  // 若沒填韓文，自動調用智慧翻譯生成
   if (!kr) {
-    kr = '혹시 이거 있나요? 추천 좀 부탁드려요.';
-    liaison = '혹씨 이거 인나요? 추천 좀 부탁뜨려요.';
+    const auto = smartTranslateZhToKr(zh, cat);
+    kr = auto.kr;
+    liaison = auto.liaison;
   }
   if (!liaison) {
     liaison = kr;
@@ -1192,11 +1387,11 @@ function saveCustomPhrase() {
   const newCard = {
     id: 'custom_' + Date.now(),
     category: cat,
-    tag: '我的私房句',
+    tag: '私房實戰句',
     zhIntent: zh,
     kr,
     liaison,
-    nuance: '您自訂收藏的韓國實戰專屬句！'
+    nuance: '您自訂收錄的專屬得體韓語句！'
   };
 
   state.customSosCards.unshift(newCard);

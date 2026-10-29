@@ -394,12 +394,15 @@
   <div id="customPhraseModal" class="fixed inset-0 z-50 hidden bg-espresso/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-cream w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl border border-oat space-y-4">
       <div class="flex items-center justify-between border-b border-oat pb-3">
-        <h3 class="font-bold text-base text-espresso">＋ 新增我的私房實戰句 / 醫美藥品詞</h3>
+        <div>
+          <h3 class="font-bold text-base text-espresso">＋ 新增我的私房實戰句 / 醫美藥品詞</h3>
+          <p class="text-[11px] text-mocha">輸入中文後點「✨ 自動生成道地韓文」，教練立刻幫你翻譯好！</p>
+        </div>
         <button onclick="closeCustomPhraseModal()" class="w-8 h-8 rounded-full bg-oat text-espresso font-bold flex items-center justify-center">✕</button>
       </div>
       <div class="space-y-3 text-xs sm:text-sm">
         <div>
-          <label class="block font-semibold text-espresso mb-1">選擇場景分類</label>
+          <label class="block font-semibold text-espresso mb-1">1. 選擇場景分類</label>
           <select id="customCat" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white">
             <option value="clinic">💉 醫美診所</option>
             <option value="pharmacy">💊 藥局採買</option>
@@ -409,16 +412,24 @@
           </select>
         </div>
         <div>
-          <label class="block font-semibold text-espresso mb-1">你想表達的中文意思</label>
-          <input type="text" id="customZh" placeholder="例如：我想打玩美電波 300 發，請問多少錢？" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white" />
+          <label class="block font-semibold text-espresso mb-1">2. 輸入你想表達的中文意思</label>
+          <div class="flex gap-1.5">
+            <input type="text" id="customZh" placeholder="例如：我想打玩美電波 300 發請問多少錢？" class="flex-1 px-3 py-2 rounded-xl border border-stone-300 bg-white" />
+            <button type="button" onclick="autoGenerateKoreanPhrase()" id="autoGenBtn" class="px-3 py-2 rounded-xl bg-point text-white font-bold text-xs shadow-sm hover:opacity-90 shrink-0">
+              ✨ 轉成韓文
+            </button>
+          </div>
         </div>
         <div>
-          <label class="block font-semibold text-espresso mb-1">韓文句子（可留空讓系統自動幫你組合！）</label>
-          <input type="text" id="customKr" placeholder="例如：올리지오 300샷 하고 싶은데 얼마예요?" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white font-kr" />
+          <div class="flex items-center justify-between mb-1">
+            <label class="font-semibold text-espresso">3. 韓文句子（可自己微調或直接點上方生成）</label>
+            <button type="button" onclick="speakCustomDraft()" class="text-xs text-rose-600 font-bold hover:underline">🔊 試聽發音</button>
+          </div>
+          <input type="text" id="customKr" placeholder="點擊「✨ 轉成韓文」會自動填入，也可以自己貼上" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white font-kr" />
         </div>
         <div>
-          <label class="block font-semibold text-espresso mb-1">發音連音提醒（選填）</label>
-          <input type="text" id="customLiaison" placeholder="例如：올리지오 삼백쌰 타고 시픈데 얼마예요?" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white font-kr" />
+          <label class="block font-semibold text-espresso mb-1">4. 實際連音標示（選填）</label>
+          <input type="text" id="customLiaison" placeholder="系統會自動標出連音念法" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white font-kr" />
         </div>
         <button onclick="saveCustomPhrase()" class="w-full py-3 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-bold shadow-sm transition">
           儲存並加入「現場救急面板」
