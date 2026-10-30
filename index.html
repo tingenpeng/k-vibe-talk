@@ -197,19 +197,29 @@
 
     <!-- TAB 3: 情境實戰 RPG + AI 自由對談 (Roleplay & AI Tutor) -->
     <section id="tab-rpg" class="tab-panel hidden space-y-6">
+      <div class="bg-gradient-to-r from-rose-50 to-amber-50 p-4 rounded-2xl border border-rose-200/70">
+        <h2 class="font-bold text-base sm:text-lg text-espresso flex items-center gap-2">
+          <span>🎭</span>
+          <span>全情境雙向對話實戰（聽懂店員 ➔ 得體應對全程）</span>
+        </h2>
+        <p class="text-xs sm:text-sm text-mocha mt-1">
+          不再單方面死記單句！每個場景從店員開口招呼、詢問人數、指引注意事項，到你禮貌點餐、應對突發狀況全程模擬，聽懂對方並優雅過招！
+        </p>
+      </div>
+
       <!-- 模式切換子選單：劇本闖關 vs AI 自由對談 -->
       <div class="flex items-center gap-2 bg-oat p-1.5 rounded-2xl w-fit">
         <button id="subTabScriptBtn" onclick="switchRpgMode('script')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-espresso shadow-sm transition">
-          🎭 經典實戰劇本闖關（免金鑰）
+          🎭 經典雙向情境劇本（烤肉/咖啡/湯飯/藥局/服飾/Olive Young/醫美）
         </button>
         <button id="subTabAiBtn" onclick="switchRpgMode('ai')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-mocha hover:text-espresso transition">
-          🤖 AI 真人情境自由對談＆造句教練
+          🤖 AI 自由對談＆造句教練
         </button>
       </div>
 
       <!-- 子面板 A: 內建劇本分支闖關 -->
       <div id="rpgScriptPanel" class="space-y-4">
-        <div id="scenarioSelector" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div id="scenarioSelector" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           <!-- 由 app.js 動態渲染劇本選擇卡 -->
         </div>
         <div id="scenarioStage" class="bg-white rounded-3xl border border-oat shadow-sm p-4 sm:p-6">
@@ -442,7 +452,7 @@
   </div>
 
   <!-- 載入資料庫與主程式 (加版本號強制作廢瀏覽器快取) -->
-  <script src="data.js?v=20261031_03"></script>
-  <script src="app.js?v=20261031_03"></script>
+  <script src="data.js?v=20261031_04"></script>
+  <script src="app.js?v=20261031_04"></script>
 </body>
 </html>

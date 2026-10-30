@@ -423,9 +423,41 @@ function renderPatterns() {
             </div>
           </div>
         ` : ''}
+
+        <!-- 雙向實戰對話直達按鈕 -->
+        <div class="px-4 sm:px-5 py-2.5 bg-rose-50/70 border-t border-rose-100 flex flex-wrap items-center justify-between gap-2">
+          <span class="text-xs text-rose-900 font-semibold flex items-center gap-1.5">
+            <span>🎭</span>
+            <span>想聽店員說什麼＋我如何得體回應？</span>
+          </span>
+          <button onclick="jumpToScenario('${pat.category}')" class="px-3 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold transition shadow-xs flex items-center gap-1">
+            <span>進入【${getCategoryName(pat.category)}】雙向對話實戰</span>
+            <span>➔</span>
+          </button>
+        </div>
       </article>
     `;
   }).join('');
+}
+
+function jumpToScenario(category, scenarioId) {
+  if (category && category !== 'all') {
+    state.currentCategory = category;
+    renderCategoryFilter();
+  }
+  if (scenarioId) {
+    state.activeScenarioId = scenarioId;
+    state.activeScenarioStep = 1;
+  } else {
+    const found = K_VIBE_DATA.scenarios.find(s => s.category === category);
+    if (found) {
+      state.activeScenarioId = found.id;
+      state.activeScenarioStep = 1;
+    }
+  }
+  switchMainTab('rpg');
+  switchRpgMode('script');
+  renderScenarios();
 }
 
 function selectPatternBlock(patId, slot, idx) {
@@ -576,22 +608,41 @@ function renderScenarios() {
   const stage = document.getElementById('scenarioStage');
   if (!selector || !stage) return;
 
-  selector.innerHTML = K_VIBE_DATA.scenarios.map(sc => {
+  const filteredScenarios = state.currentCategory === 'all'
+    ? K_VIBE_DATA.scenarios
+    : K_VIBE_DATA.scenarios.filter(sc => sc.category === state.currentCategory);
+
+  const displayScenarios = filteredScenarios.length > 0 ? filteredScenarios : K_VIBE_DATA.scenarios;
+
+  // 若目前選中的劇本不在當前分類清單中，自動選取當前分類的第一個
+  if (!displayScenarios.some(s => s.id === state.activeScenarioId)) {
+    state.activeScenarioId = displayScenarios[0].id;
+    state.activeScenarioStep = 1;
+  }
+
+  selector.innerHTML = displayScenarios.map(sc => {
     const active = sc.id === state.activeScenarioId;
+    const catName = getCategoryName(sc.category);
     return `
       <button onclick="selectScenario('${sc.id}')" class="text-left p-3.5 rounded-2xl border transition ${
         active
-          ? 'bg-espresso text-white border-espresso shadow-md'
-          : 'bg-white text-espresso border-oat hover:border-rose-300'
+          ? 'bg-espresso text-white border-espresso shadow-md ring-2 ring-rose-400'
+          : 'bg-white text-espresso border-oat hover:border-rose-300 shadow-xs'
       }">
-        <div class="text-xl mb-1">${sc.avatar}</div>
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-2xl">${sc.avatar}</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-md ${active ? 'bg-white/20 text-white' : 'bg-oat text-mocha'} font-semibold">${catName}</span>
+        </div>
         <div class="font-bold text-xs sm:text-sm line-clamp-1">${sc.title}</div>
         <div class="text-[11px] ${active ? 'text-stone-300' : 'text-mocha'} mt-0.5">${sc.place}</div>
+        <div class="text-[10px] ${active ? 'text-amber-200' : 'text-rose-600'} font-semibold mt-1 flex items-center gap-1">
+          <span>⚡ ${sc.steps.length} 回合完整雙向應對</span>
+        </div>
       </button>
     `;
   }).join('');
 
-  const currentSc = K_VIBE_DATA.scenarios.find(s => s.id === state.activeScenarioId) || K_VIBE_DATA.scenarios[0];
+  const currentSc = K_VIBE_DATA.scenarios.find(s => s.id === state.activeScenarioId) || displayScenarios[0];
   if (state.activeScenarioStep === 'done') {
     stage.innerHTML = `
       <div class="text-center py-8 space-y-4">
